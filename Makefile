@@ -33,7 +33,7 @@ EXE = mrCleanNoMiss
 # Object files
 #---------------------------------------------------------------------------------------------------
 
-OBJ = DataContainer.o RowColLpSolver.o Timer.o
+OBJ = DataContainer.o RowColLpSolver.o Timer.o ConfigParser.o
 ALL_OBJ = $(OBJ) main.o
 
 #---------------------------------------------------------------------------------------------------
@@ -83,6 +83,9 @@ $(OBJDIR)/DataContainer.o: $(addprefix $(SRCDIR)/, DataContainer.cpp DataContain
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/Timer.o: $(addprefix $(SRCDIR)/, Timer.cpp Timer.h)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/ConfigParser.o: $(addprefix $(SRCDIR)/, ConfigParser.cpp ConfigParser.h)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 #---------------------------------------------------------------------------------------------------
