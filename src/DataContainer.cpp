@@ -5,58 +5,72 @@
 
 #include "DataContainer.h"
 
+//------------------------------------------------------------------------------
+// Constructor.
+//------------------------------------------------------------------------------
 DataContainer::DataContainer(const std::string &file_name,
-                             const std::string &_na_symbol) :  na_symbol(_na_symbol)
-{
-  read(file_name);
-  calcNumInvalid();
+                             const std::string &_na_symbol,
+                             const std::size_t num_header_rows,
+                             const std::size_t num_header_cols ) :  na_symbol(_na_symbol) {
+  read(file_name, num_header_rows, num_header_cols);
+  calc_num_valid();
 }
 
-DataContainer::~DataContainer()
-{}
+//------------------------------------------------------------------------------
+// Destructor.
+//------------------------------------------------------------------------------
+DataContainer::~DataContainer() {}
 
-std::size_t DataContainer::get_num_rows() const {
-  return header_rows.size() + header_cols.size();
-}
-
-std::size_t DataContainer::get_num_cols() const {
-  return header_rows.empty() ? 0 : header_rows[0].size();
-}
-
+//------------------------------------------------------------------------------
+// Returns the number of header rows in the DataContainer object.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_header_rows() const {
   return header_rows.size();
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of header columns in the DataContainer object.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_header_cols() const {
   return header_cols.empty() ? 0 : header_cols[0].size();
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of data rows in the DataContaier object.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_data_rows() const {
   return data.size();
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of data columns in the DataContainer object.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_data_cols() const {
   return data.empty() ? 0 : data[0].size();
 }
 
+//------------------------------------------------------------------------------
+// Returns the total number of data elements by taking the product of the 
+// number of data rows and the number of data columns.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_data() const {
   return get_num_data_rows() * get_num_data_cols();
 }
 
+//------------------------------------------------------------------------------
+// Returns true if the (i,j) element in the data matrix matches the 'na_symbol'
+// and false otherwise.
+//------------------------------------------------------------------------------
 bool DataContainer::is_data_na(const std::size_t i, const std::size_t j) const {
   assert(i < get_num_data_rows());
   assert(j < get_num_data_cols());
   return data[i][j].compare(na_symbol) == 0;
 }
 
-
-std::string DataContainer::get_data(const std::size_t i, const std::size_t j) const {
-  assert(i < get_num_data_rows());
-  assert(j < get_num_data_cols());
-
-  return data[i][j];
-}
-
+//------------------------------------------------------------------------------
+// Counts the total number of valid elements in the data matrix. This equals
+// the number of elements that do NOT match the na_symbol.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_valid_data() const {
   std::size_t count = 0;
   for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
@@ -69,6 +83,11 @@ std::size_t DataContainer::get_num_valid_data() const {
   return count;
 }
 
+//------------------------------------------------------------------------------
+// Reads in the data file given by 'file_name'. Throws an error if file does
+// not exit. Expects elements in file to be seperated with a tab ('\t'). Number
+// of header rows and columns defaults to 1 in the header file.
+//------------------------------------------------------------------------------
 void DataContainer::read(const std::string &file_name,
                          const std::size_t num_header_rows,
                          const std::size_t num_header_cols)
@@ -82,7 +101,7 @@ void DataContainer::read(const std::string &file_name,
   
   // Determine the number of rows
   const std::size_t num_rows = std::count(std::istreambuf_iterator<char>(input),
-                                           std::istreambuf_iterator<char>(), '\n');
+                                          std::istreambuf_iterator<char>(), '\n');
 
   // Determine the number of columns
   input.seekg(std::ios_base::beg);  // Go to beginning of file
@@ -140,9 +159,16 @@ void DataContainer::read(const std::string &file_name,
   input.close();
 }
 
+//------------------------------------------------------------------------------
+// Writes out the header rows, header columns, and data, based on the
+// 'rows_to_keep' and 'cols_to_keep' vectors. For header rows, the header is
+// printed if the 'rows_to_keep' element is true. For header cols, the header is
+// printed if 'cols_to_keep' is true. The data elements are printed if the
+// corresponding 'rows_to_keep' and 'cols_to_keep' are both true.
+//------------------------------------------------------------------------------
 void DataContainer::write(const std::string &file_name,
                           const std::vector<bool> &rows_to_keep,
-                          const std::vector<bool> &cols_to_keep) const
+                          const std::vector<bool> &cols_to_keep)
 {
   assert(header_rows.size() > 0);
   assert(header_cols.size() > 0);
@@ -156,13 +182,13 @@ void DataContainer::write(const std::string &file_name,
   const std::size_t num_header_cols = get_num_header_cols();
   const std::size_t num_data_rows = get_num_data_rows();
   const std::size_t num_data_cols = get_num_data_cols();
-  
+
   FILE *output;
   if ((output = fopen(file_name.c_str(), "w")) == nullptr) {
     fprintf(stderr, "ERROR - Could not open file (%s).\n", file_name.c_str());
     exit(EXIT_FAILURE);
   }
-
+ 
   // Write header rows
   for (std::size_t i = 0; i < num_header_rows; ++i) {
     fprintf(output, "%s", header_rows[i][0].c_str());
@@ -185,7 +211,7 @@ void DataContainer::write(const std::string &file_name,
       fprintf(output, "%s", header_cols[i][0].c_str());
 
       for (std::size_t j = 1; j < num_header_cols; ++j) {
-        fprintf(output, "\t%s", header_rows[i][j].c_str());
+        fprintf(output, "\t%s", header_cols[i][j].c_str());
       }
 
       for (std::size_t j = 0; j < num_data_cols; ++j) {
@@ -200,6 +226,11 @@ void DataContainer::write(const std::string &file_name,
   fclose(output);
 }
 
+//------------------------------------------------------------------------------
+// Returns the total number of data elements kept. An element is only kept if
+// the corresponding 'keep_row' and 'keep_col' are both true. Inpute vectors
+// are boolean
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_valid_data_kept(const std::vector<bool> &keep_row,
                                                    const std::vector<bool> &keep_col) const
 {
@@ -217,6 +248,11 @@ std::size_t DataContainer::get_num_valid_data_kept(const std::vector<bool> &keep
   return count; 
 }
 
+//------------------------------------------------------------------------------
+// Returns the total number of data elements kept. An element is only kept if
+// the corresponding 'keep_row' and 'keep_col' are both true. Inpute vectors
+// are integers
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_valid_data_kept(const std::vector<int> &keep_row,
                                                    const std::vector<int> &keep_col) const
 {
@@ -234,18 +270,9 @@ std::size_t DataContainer::get_num_valid_data_kept(const std::vector<int> &keep_
   return count; 
 }
 
-double DataContainer::get_perc_miss_row(const std::size_t row) const {
-  assert(row < get_num_data_rows());
-
-  return static_cast<double>(get_num_invalid_in_row(row)) / get_num_data_rows();
-}
-
-double DataContainer::get_perc_miss_col(const std::size_t col) const {
-  assert(col < get_num_data_cols());
-  
-  return static_cast<double>(get_num_invalid_in_col(col)) / get_num_data_cols();
-}
-
+//------------------------------------------------------------------------------
+// Returns the maximum percent of missing data contained in any data row.
+//------------------------------------------------------------------------------
 double DataContainer::get_max_perc_miss_row() const
 {
   double max_perc_miss = 0.0;
@@ -264,6 +291,9 @@ double DataContainer::get_max_perc_miss_row() const
   return max_perc_miss;
 }
 
+//------------------------------------------------------------------------------
+// Returns the maximum percent of missing data contained in any data column.
+//------------------------------------------------------------------------------
 double DataContainer::get_max_perc_miss_col() const
 {
   double max_perc_miss = 0.0;
@@ -282,6 +312,9 @@ double DataContainer::get_max_perc_miss_col() const
   return max_perc_miss;
 }
 
+//------------------------------------------------------------------------------
+// Returns the minimum percent of missing data contained in any data row.
+//------------------------------------------------------------------------------
 double DataContainer::get_min_perc_miss_row() const
 {
   double min_perc_miss = 1.0;
@@ -300,6 +333,9 @@ double DataContainer::get_min_perc_miss_row() const
   return min_perc_miss;
 }
 
+//------------------------------------------------------------------------------
+// Returns the minimum percent of missing data contained in any data column.
+//------------------------------------------------------------------------------
 double DataContainer::get_min_perc_miss_col() const
 {
   double min_perc_miss = 1.0;
@@ -318,187 +354,102 @@ double DataContainer::get_min_perc_miss_col() const
   return min_perc_miss;
 }
 
-std::vector<std::size_t> DataContainer::get_idx_of_invalid_row(const std::size_t row) const {
-  assert(row < get_num_data_rows());
-
-  std::vector<std::size_t> invalid_idx;
-  for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-    if (is_data_na(row, j)) {
-      invalid_idx.push_back(j);
-    }
+//------------------------------------------------------------------------------
+// Prints out a binary representation of the data matrix. The header rows and 
+// columns are printed like the original data matrix. But the data elements are
+// printed as 0 if they match the 'na_symbol' and 1 otherwise.
+//------------------------------------------------------------------------------
+void DataContainer::print_binary(const std::string &filename) const {
+  assert(header_rows.size() > 0);
+  assert(header_cols.size() > 0);
+  assert(data.size() > 0);
+  assert(header_cols.size() == data.size());
+  assert(header_rows[0].size() == header_cols[0].size() + data[0].size());
+  
+  const std::size_t num_header_rows = get_num_header_rows();
+  const std::size_t num_header_cols = get_num_header_cols();
+  const std::size_t num_data_rows = get_num_data_rows();
+  const std::size_t num_data_cols = get_num_data_cols();
+  
+  FILE *output;
+  if ((output = fopen(filename.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "ERROR - Could not open file (%s).\n", filename.c_str());
+    exit(EXIT_FAILURE);
   }
-  return invalid_idx;
+
+  // Write header rows
+  for (std::size_t i = 0; i < num_header_rows; ++i) {
+    fprintf(output, "%s", header_rows[i][0].c_str());
+
+    for (std::size_t j = 1; j < num_header_cols + num_data_cols; ++j) {
+      fprintf(output, "\t%s", header_rows[i][j].c_str());
+    }
+
+    fprintf(output, "\n");
+  }
+
+  // Write header cols and data
+  for (std::size_t i = 0; i < num_data_rows; ++i) {
+    fprintf(output, "%s", header_cols[i][0].c_str());
+
+    for (std::size_t j = 1; j < num_header_cols; ++j) {
+      fprintf(output, "\t%s", header_rows[i][j].c_str());
+    }
+
+    for (std::size_t j = 0; j < num_data_cols; ++j) {
+      fprintf(output, is_data_na(i,j) ? "\t0" : "\t1");
+    }
+    fprintf(output, "\n");
+  }
+
+  fclose(output);
 }
 
-std::vector<std::size_t> DataContainer::get_idx_of_invalid_col(const std::size_t col) const {
-  assert(col < get_num_data_cols());
+//------------------------------------------------------------------------------
+// Calculates the number of valid elements in each row and column.
+//------------------------------------------------------------------------------
+void DataContainer::calc_num_valid() {  
+  num_valid_rows.resize(get_num_data_rows(), 0);
+  num_valid_cols.resize(get_num_data_cols(), 0);
 
-  std::vector<std::size_t> invalid_idx;
   for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
-    if (is_data_na(i, col)) {
-      invalid_idx.push_back(i);
+    for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
+      if (!is_data_na(i,j)) {
+        ++num_valid_rows[i];
+        ++num_valid_cols[j];
+      }
     }
   }
-  return invalid_idx;
 }
 
-
+//------------------------------------------------------------------------------
+// Returns the number of invalid elements in 'row'.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_invalid_in_row(const std::size_t row) const {
   assert(row < get_num_data_rows());
-
-  // std::size_t count = 0;
-  // for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-  //   if (is_data_na(row, j)) {
-  //     ++count;
-  //   }
-  // }
-  // return count;
-  return nInvalidRow[row];
+  return get_num_data_cols() - num_valid_rows[row];
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of invalid elements in 'col.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_invalid_in_col(const std::size_t col) const {
   assert(col < get_num_data_cols());
-
-  // std::size_t count = 0;
-  // for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
-  //   if (is_data_na(i, col)) {
-  //     ++count;
-  //   }
-  // }
-  // return count;
-  return nInvalidCol[col];
+  return get_num_data_rows() - num_valid_cols[col];
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of valid elements in 'row'.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_valid_in_row(const std::size_t row) const {
   assert(row < get_num_data_rows());
-
-  return get_num_data_cols() - get_num_invalid_in_row(row);
+  return num_valid_rows[row];
 }
 
+//------------------------------------------------------------------------------
+// Returns the number of valid elements in 'col'.
+//------------------------------------------------------------------------------
 std::size_t DataContainer::get_num_valid_in_col(const std::size_t col) const {
   assert(col < get_num_data_cols());
-
-  return get_num_data_rows() - get_num_invalid_in_col(col);
-}
-
-std::size_t DataContainer::get_num_rows_with_all_valid() const {
-  std::size_t count = 0;
-
-  for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
-    bool all_valid = true;
-    for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-      if (is_data_na(i,j)) {
-        all_valid = false;
-        break;
-      }
-    }
-    if (all_valid) {
-      ++count;
-    }
-  }
-  return count;
-}
-
-std::size_t DataContainer::get_num_cols_with_all_valid() const {
-  std::size_t count = 0;
-
-  for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-    bool all_valid = true;
-    for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
-      if (is_data_na(i,j)) {
-        all_valid = false;
-        break;
-      }
-    }
-    if (all_valid) {
-      ++count;
-    }
-  }
-  return count;
-}
-
-void DataContainer::calcNumInvalid() {
-  nInvalidRow.resize(get_num_data_rows());
-  nInvalidCol.resize(get_num_data_cols());
-
-  for (std::size_t i = 0; i < nInvalidRow.size(); ++i) {
-    nInvalidRow[i] = calcNumInvalidRow(i);
-  }
-  for(std::size_t j = 0; j < nInvalidCol.size(); ++j) {
-    nInvalidCol[j] = calcNumInvalidCol(j);
-  }
-}
-
-std::size_t DataContainer::calcNumInvalidRow(const std::size_t row) const {
-  assert(row < get_num_data_rows());
-
-  std::size_t count = 0;
-  for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-    if (is_data_na(row, j)) {
-      ++count;
-    }
-  }
-  return count;
-}
-
-std::size_t DataContainer::calcNumInvalidCol(const std::size_t col) const {
-  assert(col < get_num_data_cols());
-
-  std::size_t count = 0;
-  for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
-    if (is_data_na(i, col)) {
-      ++count;
-    }
-  }
-  return count;
-}
-
-void DataContainer::printNumMissingRow() const {
-  assert(nInvalidRow.size() > 0);
-
-  std::vector<std::pair<std::size_t, std::size_t>> count;
-  fprintf(stderr, "nInvalidSize: %lu\n", nInvalidRow.size());
-
-  for (auto nMiss : nInvalidRow) {
-    bool found = false;
-    for (std::size_t i = 0; i < count.size(); ++i) {
-      if (count[i].first == nMiss) {
-        ++count[i].second;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      count.push_back(std::make_pair(nMiss, 1));
-    }
-  }
-
-  for (auto c : count) {
-    fprintf(stderr, "%lu, %lu\n", c.first, c.second);
-  }
-}
-
-void DataContainer::printNumMissingCol() const {
-  assert(nInvalidCol.size() > 0);
-
-  std::vector<std::pair<std::size_t, std::size_t>> count;
-  fprintf(stderr, "nInvalidSize: %lu\n", nInvalidCol.size());
-
-  for (auto nMiss : nInvalidCol) {
-    bool found = false;
-    for (std::size_t i = 0; i < count.size(); ++i) {
-      if (count[i].first == nMiss) {
-        ++count[i].second;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      count.push_back(std::make_pair(nMiss, 1));
-    }
-  }
-
-  for (auto c : count) {
-    fprintf(stderr, "%lu, %lu\n", c.first, c.second);
-  }
+  return num_valid_cols[col];
 }
