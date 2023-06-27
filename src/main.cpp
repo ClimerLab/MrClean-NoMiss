@@ -5,9 +5,11 @@
 #include "RowColLpSolver.h"
 #include "Timer.h"
 #include "ConfigParser.h"
+#include "AddRowGreedy.h"
 
 void summarize_results(const DataContainer &data,
                        const std::string &na_symbol,
+                       const std::string &alg_name,
                        const double elapsed_cpu_time,
                        const std::size_t num_rows_kept,
                        const std::size_t num_cols_kept,
@@ -67,13 +69,40 @@ int main(int argc, char *argv[]) {
 
     // Record results
     if (PRINT_SUMMARY) {
-      summarize_results(data, na_symbol, rc_time, rc_rows, rc_cols, rc_rows_to_keep, rc_cols_to_keep);
+      summarize_results(data, na_symbol, "RowColLp", rc_time, rc_rows, rc_cols, rc_rows_to_keep, rc_cols_to_keep);
     }    
   }
 
-    // Wrtie statistics to file
+  // Construct and solve greedy
+  std::size_t greedy_rows = 0, greedy_cols = 0, greedy_val_elements = 0;
+  double greedy_time = 0.0;
+  std::vector<bool> greedy_rows_to_keep(data.get_num_data_rows(), false), greedy_cols_to_keep(data.get_num_data_cols(), false);
+  if (RUN_GREEDY) {
+    timer.restart();
+    AddRowGreedy ar_greedy(data);
+    ar_greedy.solve();
+    timer.stop();
+
+    greedy_rows_to_keep = ar_greedy.get_rows_to_keep();
+    greedy_cols_to_keep = ar_greedy.get_cols_to_keep();
+    greedy_rows = ar_greedy.get_num_rows_to_keep();
+    greedy_cols = ar_greedy.get_num_cols_to_keep();
+    greedy_time = timer.elapsed_cpu_time();
+    greedy_val_elements = data.get_num_valid_data_kept(rc_rows_to_keep, rc_cols_to_keep);
+
+    if (PRINT_SUMMARY) {
+      summarize_results(data, na_symbol, "AddRowGreedy", greedy_time, greedy_rows, greedy_cols, greedy_rows_to_keep, greedy_cols_to_keep);
+    }
+  }
+
+  // Wrtie statistics to file
   if (WRITE_STATS) {
-    write_stats_to_file("RowCol_summary.csv", data_file, rc_time, rc_val_elements, rc_rows, rc_cols);
+    if (RUN_ROW_COL) {
+      write_stats_to_file("RowCol_summary.csv", data_file, rc_time, rc_val_elements, rc_rows, rc_cols);
+    }
+    if (RUN_GREEDY) {
+      write_stats_to_file("Greedy_summary.csv", data_file, greedy_time, greedy_val_elements, greedy_rows, greedy_cols);
+    }
   }
   
 
@@ -85,12 +114,14 @@ int main(int argc, char *argv[]) {
 //------------------------------------------------------------------------------
 void summarize_results(const DataContainer &data,
                        const std::string &na_symbol,
+                       const std::string &alg_name,
                        const double elapsed_cpu_time,
                        const std::size_t num_rows_kept,
                        const std::size_t num_cols_kept,
                        const std::vector<bool> rows_to_keep,
                        const std::vector<bool> cols_to_keep)
 {
+  fprintf(stderr, "Summary of %s\n", alg_name.c_str());
   fprintf(stderr, "\tTook %lf seconds\n", elapsed_cpu_time);
   fprintf(stderr, "\tNum rows after cleaning: %lu\n", num_rows_kept);
   fprintf(stderr, "\tNum cols after cleaning: %lu\n", num_cols_kept);

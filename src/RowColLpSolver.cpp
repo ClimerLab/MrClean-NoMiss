@@ -1,5 +1,8 @@
 #include "RowColLpSolver.h"
 
+//------------------------------------------------------------------------------
+// Constructor.
+//------------------------------------------------------------------------------
 RowColLpSolver::RowColLpSolver(const DataContainer &_data,
                                const double _TOL) : data(&_data),
                                                     num_rows(data->get_num_data_rows()),
@@ -22,6 +25,9 @@ RowColLpSolver::RowColLpSolver(const DataContainer &_data,
   build_model();
 }
 
+//------------------------------------------------------------------------------
+// Destructor.
+//------------------------------------------------------------------------------
 RowColLpSolver::~RowColLpSolver() {}
 
 //------------------------------------------------------------------------------
