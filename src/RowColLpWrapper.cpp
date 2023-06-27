@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     noMissSummary::summarize_results(data, na_symbol, "RowColLp", run_time, num_rows_to_keep, num_cols_to_keep, rows_to_keep, cols_to_keep);
   }
 
-    // Wrtie statistics to file
+  // Wrtie statistics to file
   if (WRITE_STATS) {
     noMissSummary::write_stats_to_file("RowColLp_summary.csv", data_file, run_time, num_val_elements, num_rows_to_keep, num_cols_to_keep);
   }
