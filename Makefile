@@ -69,12 +69,7 @@ all: $(EXE)
 debug: CXXFLAGS += -g
 debug: $(EXE)
 
-# mrCleanNoMiss: $(addprefix $(OBJDIR)/, main.o)
-# 	$(CXX) $(CXXLNDIRS) -o $@ $(addprefix $(OBJDIR)/, $(ALL_OBJ)) $(CXXLNFLAGS)
 
-# $(OBJDIR)/main.o:	$(addprefix $(SRCDIR)/, main.cpp) \
-# 									$(addprefix $(OBJDIR)/, $(OBJ))
-# 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(GREEDY_OBJ)) $(CXXLNFLAGS)
 
