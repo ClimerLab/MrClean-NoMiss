@@ -34,30 +34,30 @@ int main(int argc, char *argv[]) {
   DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
 
   // Construct & solve AddRowGreedy problem
-  std::size_t greedy_rows = 0, greedy_cols = 0, greedy_val_elements = 0;
-  double greedy_time = 0.0;
-  std::vector<bool> greedy_rows_to_keep(data.get_num_data_rows(), false), greedy_cols_to_keep(data.get_num_data_cols(), false);
+  std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
+  double run_time = 0.0;
+  std::vector<bool> rows_to_keep(data.get_num_data_rows(), false), cols_to_keep(data.get_num_data_cols(), false);
   
   timer.restart();
   AddRowGreedy ar_greedy(data);
   ar_greedy.solve();
   timer.stop();
 
-  greedy_rows_to_keep = ar_greedy.get_rows_to_keep();
-  greedy_cols_to_keep = ar_greedy.get_cols_to_keep();
-  greedy_rows = ar_greedy.get_num_rows_to_keep();
-  greedy_cols = ar_greedy.get_num_cols_to_keep();
-  greedy_time = timer.elapsed_cpu_time();
-  greedy_val_elements = data.get_num_valid_data_kept(greedy_rows_to_keep, greedy_cols_to_keep);
+  rows_to_keep = ar_greedy.get_rows_to_keep();
+  cols_to_keep = ar_greedy.get_cols_to_keep();
+  num_rows_to_keep = ar_greedy.get_num_rows_to_keep();
+  num_cols_to_keep = ar_greedy.get_num_cols_to_keep();
+  run_time = timer.elapsed_cpu_time();
+  num_val_elements = data.get_num_valid_data_kept(rows_to_keep, cols_to_keep);
 
   if (PRINT_SUMMARY) {
-    noMissSummary::summarize_results(data, na_symbol, "AddRowGreedy", greedy_time, greedy_rows, greedy_cols, greedy_rows_to_keep, greedy_cols_to_keep);
+    noMissSummary::summarize_results(data, na_symbol, "AddRowGreedy", run_time, num_rows_to_keep, num_cols_to_keep, rows_to_keep, cols_to_keep);
   }
   
 
     // Wrtie statistics to file
   if (WRITE_STATS) {
-    noMissSummary::write_stats_to_file("Greedy_summary.csv", data_file, greedy_time, greedy_val_elements, greedy_rows, greedy_cols);
+    noMissSummary::write_stats_to_file("Greedy_summary.csv", data_file, run_time, num_val_elements, num_rows_to_keep, num_cols_to_keep);
   }
 
   return 0;

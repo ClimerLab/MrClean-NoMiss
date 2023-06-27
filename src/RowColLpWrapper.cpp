@@ -33,31 +33,31 @@ int main(int argc, char *argv[]) {
   // Read in data
   DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
 
-    // Construct & solve RowCol LP
-  std::size_t rc_rows = 0, rc_cols = 0, rc_val_elements = 0;
-  double rc_time = 0.0;
-  std::vector<bool> rc_rows_to_keep(data.get_num_data_rows(), false), rc_cols_to_keep(data.get_num_data_cols(), false);
+  // Construct & solve RowCol LP
+  std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
+  double run_time = 0.0;
+  std::vector<bool> rows_to_keep(data.get_num_data_rows(), false), cols_to_keep(data.get_num_data_cols(), false);
 
   RowColLpSolver rc_solver(data);
   timer.start();
   rc_solver.solve();
   timer.stop();
 
-  rc_rows_to_keep = rc_solver.get_rows_to_keep();
-  rc_cols_to_keep = rc_solver.get_cols_to_keep();
-  rc_rows = rc_solver.get_num_rows_to_keep();
-  rc_cols = rc_solver.get_num_cols_to_keep();
-  rc_time = timer.elapsed_cpu_time();
-  rc_val_elements = data.get_num_valid_data_kept(rc_rows_to_keep, rc_cols_to_keep);
+  rows_to_keep = rc_solver.get_rows_to_keep();
+  cols_to_keep = rc_solver.get_cols_to_keep();
+  num_rows_to_keep = rc_solver.get_num_rows_to_keep();
+  num_cols_to_keep = rc_solver.get_num_cols_to_keep();
+  run_time = timer.elapsed_cpu_time();
+  num_val_elements = data.get_num_valid_data_kept(rows_to_keep, cols_to_keep);
 
   // Record results
   if (PRINT_SUMMARY) {
-    noMissSummary::summarize_results(data, na_symbol, "RowColLp", rc_time, rc_rows, rc_cols, rc_rows_to_keep, rc_cols_to_keep);
+    noMissSummary::summarize_results(data, na_symbol, "RowColLp", run_time, num_rows_to_keep, num_cols_to_keep, rows_to_keep, cols_to_keep);
   }
 
     // Wrtie statistics to file
   if (WRITE_STATS) {
-    noMissSummary::write_stats_to_file("RowCol_summary.csv", data_file, rc_time, rc_val_elements, rc_rows, rc_cols);
+    noMissSummary::write_stats_to_file("RowColLp_summary.csv", data_file, run_time, num_val_elements, num_rows_to_keep, num_cols_to_keep);
   }
 
   return 0;
