@@ -27,7 +27,7 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = rowColLp addRowGreedy
+EXE = rowColLp addRowGreedy calcPairs
 
 #---------------------------------------------------------------------------------------------------
 # Object files
@@ -36,6 +36,7 @@ EXE = rowColLp addRowGreedy
 COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
 ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
 GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
+CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairs.o
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -69,6 +70,17 @@ all: $(EXE)
 debug: CXXFLAGS += -g
 debug: $(EXE)
 
+calcPairs: $(addprefix $(OBJDIR)/, CalcPairsWrapper.o)
+	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(CALCPAIRS_OBJ)) $(CXXLNFLAGS)
+
+$(OBJDIR)/CalcPairsWrapper.o:	$(addprefix $(SRCDIR)/, CalcPairsWrapper.cpp ) \
+															$(addprefix $(OBJDIR)/, DataContainer.o Timer.o) \
+															$(addprefix $(OBJDIR)/, CalcPairs.o)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+$(OBJDIR)/CalcPairs.o:	$(addprefix $(SRCDIR)/, CalcPairs.cpp CalcPairs.h) \
+												$(addprefix $(OBJDIR)/, DataContainer.o)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(GREEDY_OBJ)) $(CXXLNFLAGS)

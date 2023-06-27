@@ -33,6 +33,8 @@
 mrCleanNoMiss
 rowColLp
 addRowGreedy
+calcPairs
 
 # Data file
 *.csv
+*.txt
