@@ -27,7 +27,7 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = rowColLp
+EXE = rowColLp addRowGreedy
 
 #---------------------------------------------------------------------------------------------------
 # Object files
@@ -35,7 +35,7 @@ EXE = rowColLp
 
 COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
 ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
-
+GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -75,6 +75,13 @@ debug: $(EXE)
 # $(OBJDIR)/main.o:	$(addprefix $(SRCDIR)/, main.cpp) \
 # 									$(addprefix $(OBJDIR)/, $(OBJ))
 # 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
+	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(GREEDY_OBJ)) $(CXXLNFLAGS)
+
+$(OBJDIR)/AddRowGreedyWrapper.o:	$(addprefix $(SRCDIR)/, AddRowGreedyWrapper.cpp ) \
+																	$(addprefix $(OBJDIR)/, AddRowGreedy.o) \
+																	$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 rowColLp: $(addprefix $(OBJDIR)/, RowColLpWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ROWCOL_OBJ)) $(CXXLNFLAGS)
