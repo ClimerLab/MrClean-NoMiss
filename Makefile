@@ -27,14 +27,15 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = mrCleanNoMiss
+EXE = rowColLp
 
 #---------------------------------------------------------------------------------------------------
 # Object files
 #---------------------------------------------------------------------------------------------------
 
-OBJ = DataContainer.o RowColLpSolver.o Timer.o ConfigParser.o AddRowGreedy.o
-ALL_OBJ = $(OBJ) main.o
+COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
+ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
+
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -68,20 +69,31 @@ all: $(EXE)
 debug: CXXFLAGS += -g
 debug: $(EXE)
 
-mrCleanNoMiss: $(addprefix $(OBJDIR)/, main.o)
-	$(CXX) $(CXXLNDIRS) -o $@ $(addprefix $(OBJDIR)/, $(ALL_OBJ)) $(CXXLNFLAGS)
+# mrCleanNoMiss: $(addprefix $(OBJDIR)/, main.o)
+# 	$(CXX) $(CXXLNDIRS) -o $@ $(addprefix $(OBJDIR)/, $(ALL_OBJ)) $(CXXLNFLAGS)
 
-$(OBJDIR)/main.o:	$(addprefix $(SRCDIR)/, main.cpp) \
-									$(addprefix $(OBJDIR)/, $(OBJ))
+# $(OBJDIR)/main.o:	$(addprefix $(SRCDIR)/, main.cpp) \
+# 									$(addprefix $(OBJDIR)/, $(OBJ))
+# 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+rowColLp: $(addprefix $(OBJDIR)/, RowColLpWrapper.o)
+	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ROWCOL_OBJ)) $(CXXLNFLAGS)
+
+$(OBJDIR)/RowColLpWrapper.o:	$(addprefix $(SRCDIR)/, RowColLpWrapper.cpp ) \
+															$(addprefix $(OBJDIR)/, RowColLpSolver.o) \
+															$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/AddRowGreedy.o:	$(addprefix $(SRCDIR)/, AddRowGreedy.cpp AddRowGreedy.h) \
-												$(addprefix $(OBJDIR)/, DataContainer.o)
+													$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/RowColLpSolver.o:	$(addprefix $(SRCDIR)/, RowColLpSolver.cpp RowColLpSolver.h) \
-												$(addprefix $(OBJDIR)/, DataContainer.o)
+														$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+$(OBJDIR)/NoMissSummary.o: $(addprefix $(SRCDIR)/, NoMissSummary.cpp NoMissSummary.h)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/DataContainer.o: $(addprefix $(SRCDIR)/, DataContainer.cpp DataContainer.h)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
