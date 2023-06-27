@@ -31,3 +31,6 @@
 *.out
 *.app
 mrCleanNoMiss
+
+# Data file
+*.csv
