@@ -168,7 +168,7 @@ void DataContainer::read(const std::string &file_name,
 //------------------------------------------------------------------------------
 void DataContainer::write(const std::string &file_name,
                           const std::vector<bool> &rows_to_keep,
-                          const std::vector<bool> &cols_to_keep)
+                          const std::vector<bool> &cols_to_keep) const
 {
   assert(header_rows.size() > 0);
   assert(header_cols.size() > 0);

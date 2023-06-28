@@ -24,7 +24,7 @@ public:
   void print_binary(const std::string &filename) const;
   void write(const std::string &file_name,
              const std::vector<bool> &rows_to_keep,
-             const std::vector<bool> &cols_to_keep);
+             const std::vector<bool> &cols_to_keep) const;
 
   std::size_t get_num_header_rows() const;
   std::size_t get_num_header_cols() const;
