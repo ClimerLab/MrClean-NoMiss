@@ -40,3 +40,5 @@ elementIp
 *.txt
 **.json
 
+# Scripts
+*.sh
