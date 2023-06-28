@@ -12,10 +12,10 @@ CalcPairs::CalcPairs(const DataContainer &_data) :  data(&_data),
   record_free_rows();
   record_free_cols();
 
-  fprintf(stderr, "# forced 1 rows: %lu\n", forced_one_rows.size());
-  fprintf(stderr, "# forced 1 cols: %lu\n", forced_one_cols.size());
-  fprintf(stderr, "# free rows: %lu\n", free_rows.size());
-  fprintf(stderr, "# free cols: %lu\n", free_cols.size());
+  // fprintf(stderr, "# forced 1 rows: %lu\n", forced_one_rows.size());
+  // fprintf(stderr, "# forced 1 cols: %lu\n", forced_one_cols.size());
+  // fprintf(stderr, "# free rows: %lu\n", free_rows.size());
+  // fprintf(stderr, "# free cols: %lu\n", free_cols.size());
 }
 
 //------------------------------------------------------------------------------

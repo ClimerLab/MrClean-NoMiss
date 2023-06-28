@@ -36,6 +36,4 @@ public:
   void calc_free_col_pairs();
 };
 
-
-
 #endif
