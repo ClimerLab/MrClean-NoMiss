@@ -169,6 +169,16 @@ void CalcPairsController::receive_completion() {
 }
 
 void CalcPairsController::work() {
+    output = openFile("colPairs.csv");
+  for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
+    // fprintf(stderr, "Checking col %lu\n", j);
+    send_problem(1, j);
+  }
+  while (workers_still_working()) {
+    receive_completion();
+  }
+  fclose(output);
+
   // Calculate values for all pairs of rows and record
   output = openFile("rowPairs.csv");
   for (std::size_t i = 0; i < free_rows.size()-1; ++i) {
@@ -180,14 +190,7 @@ void CalcPairsController::work() {
   }
   fclose(output);
 
-  output = openFile("colPairs.csv");
-  for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
-    send_problem(1, j);
-  }
-  while (workers_still_working()) {
-    receive_completion();
-  }
-  fclose(output);
+
 }
 
 void CalcPairsController::signal_workers_to_end() {
