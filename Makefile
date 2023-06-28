@@ -27,7 +27,7 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = rowColLp addRowGreedy calcPairs
+EXE = rowColLp addRowGreedy calcPairs elementIp
 
 #---------------------------------------------------------------------------------------------------
 # Object files
@@ -37,6 +37,7 @@ COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
 ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
 GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairs.o
+ELEMENT_OBJ = $(COMMON_OBJ) ElementSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o ElementIpSolver.o
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -69,6 +70,27 @@ all: $(EXE)
 
 debug: CXXFLAGS += -g
 debug: $(EXE)
+
+elementIp: $(addprefix $(OBJDIR)/, ElementWrapper.o)
+	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ELEMENT_OBJ)) $(CXXLNFLAGS)
+
+$(OBJDIR)/ElementWrapper.o:	$(addprefix $(SRCDIR)/, ElementWrapper.cpp ) \
+														$(addprefix $(OBJDIR)/, ElementSolver.o) \
+														$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+$(OBJDIR)/ElementSolver.o:	$(addprefix $(SRCDIR)/, ElementSolver.cpp ElementSolver.h) \
+														$(addprefix $(OBJDIR)/, DataContainer.o Timer.o Pairs.o) \
+														$(addprefix $(OBJDIR)/, AddRowGreedy.o ElementIpSolver.o) \
+														$(addprefix $(SRCDIR)/, Utils.h)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+$(OBJDIR)/Pairs.o: $(addprefix $(SRCDIR)/, Pairs.cpp Pairs.h)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/ElementIpSolver.o:	$(addprefix $(SRCDIR)/, ElementIpSolver.cpp ElementIpSolver.h) \
+															$(addprefix $(OBJDIR)/, DataContainer.o)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 calcPairs: $(addprefix $(OBJDIR)/, CalcPairsWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(CALCPAIRS_OBJ)) $(CXXLNFLAGS)

@@ -30,11 +30,13 @@
 *.exe
 *.out
 *.app
-mrCleanNoMiss
 rowColLp
 addRowGreedy
 calcPairs
+elementIp
 
 # Data file
 *.csv
 *.txt
+**.json
+
