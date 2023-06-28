@@ -117,11 +117,19 @@ void CalcPairs::calc_free_row_pairs() {
     const std::size_t num_pairs = free_rows.size()-1-idx;
     count.resize(num_pairs, num_cols);
 
+    std::vector<std::size_t> valid_cols;
+    for (auto j : free_cols) {
+      if (!data->is_data_na(i1, j)) {
+        valid_cols.push_back(j);
+      }
+    }
+
     for (std::size_t idx2 = idx + 1; idx2 < free_rows.size(); ++idx2) {
+      count[idx2 - idx - 1] -= (free_cols.size() - valid_cols.size());
       const std::size_t i2 = free_rows[idx2];
      
-      for (auto j : free_cols) {
-        if (data->is_data_na(i1, j) || data->is_data_na(i2, j)) {
+      for (auto j : valid_cols) {
+        if (data->is_data_na(i2, j)) {
           --count[idx2 - idx - 1];
         }
       }
@@ -142,11 +150,19 @@ void CalcPairs::calc_free_col_pairs() {
     const std::size_t num_pairs = free_cols.size()-1-idx;
     count.resize(num_pairs, num_rows);
 
+    std::vector<std::size_t> valid_rows;
+    for (auto i : free_rows) {
+      if (!data->is_data_na(i, j1)) {
+        valid_rows.push_back(i);
+      }
+    }
+
     for (std::size_t idx2 = idx + 1; idx2 < free_cols.size(); ++idx2) {
+      count[idx2 - idx - 1] -= (free_rows.size() - valid_rows.size());
       const std::size_t j2 = free_cols[idx2];
      
-      for (auto i : free_rows) {
-        if (data->is_data_na(i, j1) || data->is_data_na(i, j2)) {
+      for (auto i : valid_rows) {
+        if (data->is_data_na(i, j2)) {
           --count[idx2 - idx - 1];
         }
       }

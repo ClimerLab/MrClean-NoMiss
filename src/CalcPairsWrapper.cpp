@@ -37,11 +37,11 @@ int main(int argc, char* argv[]) {
     fprintf(output, "ERROR - Could not open file (%s)\n", file_name.c_str());
     exit(1);
   }
-  fprintf(output, "%s,%d\n", data_file.c_str(), timer.elapsed_cpu_time());
+  fprintf(output, "%s,%lf\n", data_file.c_str(), timer.elapsed_cpu_time());
   fclose(output);
 
   fprintf(stderr, "Summary of CalcPairs\n");
-  fprintf(stderr, "\tTook %lf seconds\n", timer.elapsed_cpu_time());
+  fprintf(stderr, "\tTook %lf seconds\n\n", timer.elapsed_cpu_time());
 
   return 0;
 }
