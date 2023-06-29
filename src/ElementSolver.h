@@ -27,28 +27,12 @@ private:
   std::vector<bool> best_rows_to_keep;
   std::vector<bool> best_cols_to_keep;
   std::size_t best_num_elements;
-  
-  // std::vector<double> r_var;
-  // std::vector<double> c_var;
-  // double obj_value;
-
-  // IloEnv env;
-  // IloCplex cplex;
-  // IloModel model;
-  // IloNumVarArray r;
-  // IloNumVarArray c;
-  // IloNumArray r_copy;
-  // IloNumArray c_copy;
-  // IloExpr obj;
 
   FILE* open_file_for_read(const std::string &file_name) const;
   void read_forced_one_rows();
   void read_forced_one_cols();
   void read_free_rows();
   void read_free_cols();
-
-  // void build_model();
-  // void round_extreme_values();  
 
 public:
   ElementSolver(const DataContainer &_data,
