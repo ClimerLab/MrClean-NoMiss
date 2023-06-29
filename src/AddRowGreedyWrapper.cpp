@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   // Construct & solve AddRowGreedy problem
   std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
   double run_time = 0.0;
-  std::vector<bool> rows_to_keep(data.get_num_data_rows(), false), cols_to_keep(data.get_num_data_cols(), false);
+  std::vector<int> rows_to_keep(data.get_num_data_rows(), 0), cols_to_keep(data.get_num_data_cols(), 0);
   
   timer.restart();
   AddRowGreedy ar_greedy(data);
