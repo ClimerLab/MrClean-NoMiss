@@ -2,6 +2,7 @@
 #define CALC_PAIRS_CORE_H
 
 #include <vector>
+#include <string>
 #include "DataContainer.h"
 
 class CalcPairsCore
@@ -13,11 +14,14 @@ private:
   const std::size_t world_rank;  
   const std::size_t world_size;
 
-  std::vector<std::size_t> forced_one_rows;
-  std::vector<std::size_t> forced_one_cols;
-
   std::vector<std::size_t> free_rows;
   std::vector<std::size_t> free_cols;
+
+  FILE *output;
+  
+  void open_file(const std::string &file_name);
+  void close_file();
+  void record_pair_count(const std::vector<std::size_t> &count, FILE *stream) const;
 
 public:
   CalcPairsCore(const DataContainer &_data,

@@ -31,13 +31,15 @@ private:
   void calc_free_rows();
   void calc_free_cols();
 
-  FILE* openFile(const std::string &file_name) const;
+  FILE* open_file(const std::string &file_name) const;
   void record_free_rows() const;
   void record_free_cols() const;
   void record_pair_count(FILE* stream, const std::vector<std::size_t> &pairs) const;
 
   void send_problem(const int rowCol, const std::size_t idx);
   void receive_completion();
+
+  void send_start();
 
 public:
   CalcPairsController(const DataContainer &_data);
@@ -47,6 +49,9 @@ public:
   void signal_workers_to_end();
   void wait_for_workers();
   bool workers_still_working();
+
+  void combine_row_pair_files();
+  void combine_col_pair_files();
 };
 
 #endif

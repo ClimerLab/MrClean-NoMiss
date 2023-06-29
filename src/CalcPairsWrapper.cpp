@@ -63,15 +63,16 @@ int main(int argc, char* argv[]) {
 
         fprintf(stderr, "Summary of CalcPairs\n");
         fprintf(stderr, "\tTook %lf seconds\n", timer.elapsed_cpu_time());
-
+        
         break;
       }
 
       default: {
         CalcPairsWorker worker(data);
-        while (!worker.end()) {
+        // while (!worker.end()) {
           worker.work();
-        }
+        // }
+        // fprintf(stderr, "Worker has ended\n");
         break;
       }
     }

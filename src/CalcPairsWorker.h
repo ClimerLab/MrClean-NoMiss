@@ -12,9 +12,6 @@ private:
   const std::size_t num_cols;
   const std::size_t world_rank;
 
-  std::vector<std::size_t> forced_one_rows;
-  std::vector<std::size_t> forced_one_cols;
-
   std::vector<std::size_t> free_rows;
   std::vector<std::size_t> free_cols;
 
@@ -24,11 +21,12 @@ private:
 
   bool end_;
 
-  void calc_free_rows();
-  void calc_free_cols();
+  FILE* open_file_for_read(const std::string &file_name) const;
+  void read_free_rows();
+  void read_free_cols();
 
-  void receive_problem();
-  void send_back_solution();
+  void send_completion();
+  void receive_start();
 
 public:
   CalcPairsWorker(const DataContainer &_data);

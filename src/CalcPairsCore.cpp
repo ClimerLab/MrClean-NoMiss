@@ -7,8 +7,11 @@ CalcPairsCore::CalcPairsCore(const DataContainer &_data,
                                                                             num_rows(data->get_num_data_rows()),
                                                                             num_cols(data->get_num_data_cols()),
                                                                             world_rank(Parallel::get_world_rank()),
-                                                                            world_size(Parallel::get_world_size())
+                                                                            world_size(Parallel::get_world_size()),
+                                                                            free_rows(_free_rows),
+                                                                            free_cols(_free_cols)
 {
+  fprintf(stderr, "Core initialized on rank %lu\n", world_rank);
 }
 
 CalcPairsCore::~CalcPairsCore()
@@ -16,5 +19,91 @@ CalcPairsCore::~CalcPairsCore()
 }
 
 void CalcPairsCore::work() {
-  
+  // fprintf(stderr, "Core %lu starting work\n", world_rank);
+  std::string file_name = "rowPairs_part" + std::to_string(world_rank) + ".csv";
+  open_file(file_name);
+
+  // fprintf(stderr, "Num free_rows: %lu\n", free_rows.size());
+  for (std::size_t idx = world_rank; idx < free_rows.size()-1; idx+=world_size) {
+    // fprintf(stderr, "rank %lu is starting row %lu\n", world_rank, idx);
+    const std::size_t i1 = free_rows[idx];
+    const std::size_t num_pairs = free_rows.size()-1-idx;
+    std::vector<std::size_t> count(num_pairs, num_cols);
+
+    std::vector<std::size_t> valid_cols;
+    for (auto j : free_cols) {
+      if (!data->is_data_na(i1, j)) {
+        valid_cols.push_back(j);
+      }
+    }
+
+    for (std::size_t idx2 = idx + 1; idx2 < free_rows.size(); ++idx2) {
+      count[idx2 - idx - 1] -= (free_cols.size() - valid_cols.size());
+      const std::size_t i2 = free_rows[idx2];
+     
+      for (auto j : valid_cols) {
+        if (data->is_data_na(i2, j)) {
+          --count[idx2 - idx - 1];
+        }
+      }
+    }
+
+    record_pair_count(count, output);
+  }
+
+  close_file();
+
+// fprintf(stderr, "Num free_cols: %lu\n", free_cols.size());
+  std::string col_file_name =  "colPairs_part" + std::to_string(world_rank) + ".csv";
+  open_file(col_file_name);
+
+  for (std::size_t idx = world_rank; idx < free_cols.size()-1; idx+=world_size) {
+    // fprintf(stderr, "rank %lu is starting col %lu\n", world_rank, idx);
+    const std::size_t j1 = free_cols[idx];
+    const std::size_t num_pairs = free_cols.size()-1-idx;
+    std::vector<std::size_t> count(num_pairs, num_rows);
+
+    std::vector<std::size_t> valid_rows;
+    for (auto i : free_rows) {
+      if (!data->is_data_na(i, j1)) {
+        valid_rows.push_back(i);
+      }
+    }
+
+    for (std::size_t idx2 = idx + 1; idx2 < free_cols.size(); ++idx2) {
+      count[idx2 - idx - 1] -= (free_rows.size() - valid_rows.size());
+      const std::size_t j2 = free_cols[idx2];
+     
+      for (auto i : valid_rows) {
+        if (data->is_data_na(i, j2)) {
+          --count[idx2 - idx - 1];
+        }
+      }
+    }
+
+    record_pair_count(count, output);
+  }
+  close_file();
+
+
+  // fprintf(stderr, "Rank %lu inished work\n", world_rank);
+}
+
+
+void CalcPairsCore::open_file(const std::string &file_name) {
+  if ((output = fopen(file_name.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "ERROR - Could not open file %s\n", file_name.c_str());
+    exit(1);
+  }
+}
+
+void CalcPairsCore::close_file() {
+  fclose(output);
+}
+
+void CalcPairsCore::record_pair_count(const std::vector<std::size_t> &count, FILE *stream) const {
+  for (std::size_t i = 0; i < count.size()-1; ++i) {
+    fprintf(output, "%lu,", count[i]);
+  }
+  fprintf(output, "%lu\n", count[count.size()-1]);
 }
