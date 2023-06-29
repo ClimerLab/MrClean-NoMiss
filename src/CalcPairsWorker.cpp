@@ -54,7 +54,9 @@ void CalcPairsWorker::receive_problem() {
     #endif
 
     return;
-  } 
+  }
+
+  fprintf(stderr, "Rank %lu receiving problem\n", world_rank);
   
   // Receive whether the idx is for a row or column
   MPI_Recv(&row_col, 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -64,6 +66,8 @@ void CalcPairsWorker::receive_problem() {
 }
 
 void CalcPairsWorker::send_back_solution() {
+  fprintf(stderr, "Rank %lu sending solution\n", world_rank);
+  
   // Send row/col indicator  
   MPI_Send(&row_col, 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
 

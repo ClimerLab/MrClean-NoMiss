@@ -37,7 +37,7 @@ private:
   void record_pair_count(FILE* stream, const std::vector<std::size_t> &pairs) const;
 
   void send_problem(const int rowCol, const std::size_t idx);
-  void receive_completion();  
+  void receive_completion();
 
 public:
   CalcPairsController(const DataContainer &_data);

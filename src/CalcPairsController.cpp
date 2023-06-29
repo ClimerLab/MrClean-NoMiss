@@ -114,13 +114,14 @@ void CalcPairsController::record_pair_count(FILE* stream, const std::vector<std:
 }
 
 void CalcPairsController::send_problem(const int rowCol, const std::size_t idx) {
-if (available_workers.empty()) { // wait for a free worker
+  if (available_workers.empty()) { // wait for a free worker
     receive_completion();
   }
 
   assert(!available_workers.empty()); // Cannot send problem with no available workers
 
   const int worker = available_workers.top();
+  fprintf(stderr, "Sending problem to rank %d\n", worker);
 
   // Indicate whether a row or column index is being sent
   MPI_Send(&rowCol, 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
@@ -137,9 +138,11 @@ void CalcPairsController::receive_completion() {
   assert(available_workers.size() < world_size - 1); // Cannot receive problem when no workers are working
 
   MPI_Status status;
-
-  // Receive the solution
+  
   MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+  // Receive the solution
+  
+  fprintf(stderr, "Rank %d receive solution from %d\n", 0, status.MPI_SOURCE);
 
   // Receive row/col indicator
   int rowCol;
@@ -158,18 +161,23 @@ void CalcPairsController::receive_completion() {
   MPI_Recv(&count[0], nPairs, CUSTOM_SIZE_T, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
 
   record_pair_count(output, count);
-  // for (std::size_t i = 0; i < count.size()-1; ++i) {
-  //   fprintf(output, "%lu,", count[i]);
-  // }
-  // fprintf(output, "%lu\n", count[count.size()-1]);
-
+  
   // Make the workers available again
   available_workers.push(status.MPI_SOURCE);
   unavailable_workers.erase(status.MPI_SOURCE);
+  fprintf(stderr, "%lu available workers\n", available_workers.size());
+
+  // int flag;
+  // MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, &status);
+  // if (flag) {
+  //   fprintf(stderr, "Another messsage in buuffer\n");
+  // }
 }
 
 void CalcPairsController::work() {
-    output = openFile("colPairs.csv");
+  output = openFile("colPairs.csv");
+  fprintf(stderr, "%lu free cols to check\n", free_cols.size());
+
   for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
     // fprintf(stderr, "Checking col %lu\n", j);
     send_problem(1, j);
@@ -189,8 +197,6 @@ void CalcPairsController::work() {
     receive_completion();
   }
   fclose(output);
-
-
 }
 
 void CalcPairsController::signal_workers_to_end() {
