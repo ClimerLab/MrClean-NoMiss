@@ -38,7 +38,7 @@ COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
 ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
 GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairsController.o \
-								CalcPairsWorker.o Parallel.o
+								CalcPairsWorker.o Parallel.o CalcPairsCore.o
 ELEMENT_OBJ = $(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o \
 							ElementSolverController.o ElementSolverWorker.o Parallel.o
 
@@ -109,16 +109,20 @@ calcPairs: $(addprefix $(OBJDIR)/, CalcPairsWrapper.o)
 
 $(OBJDIR)/CalcPairsWrapper.o:	$(addprefix $(SRCDIR)/, CalcPairsWrapper.cpp ) \
 															$(addprefix $(OBJDIR)/, DataContainer.o Timer.o Parallel.o) \
-															$(addprefix $(OBJDIR)/, CalcPairsController.o CalcPairsWorker.o)
+															$(addprefix $(OBJDIR)/, CalcPairsController.o CalcPairsWorker.o CalcPairsCore.o) 
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/CalcPairsController.o:	$(addprefix $(SRCDIR)/, CalcPairsController.cpp CalcPairsController.h) \
-																	$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
+																	$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/CalcPairsWorker.o:	$(addprefix $(SRCDIR)/, CalcPairsWorker.cpp CalcPairsWorker.h) \
-															$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
+															$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/CalcPairsCore.o:	$(addprefix $(SRCDIR)/, CalcPairsCore.cpp CalcPairsCore.h) \
+														$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(GREEDY_OBJ)) $(CXXLNFLAGS)
