@@ -58,8 +58,8 @@ public:
 
   std::size_t get_obj_value() const;
   std::size_t get_num_elements() const;
-  std::vector<bool> get_rows_to_keep() const;
-  std::vector<bool> get_cols_to_keep() const;
+  std::vector<int> get_rows_to_keep() const;
+  std::vector<int> get_cols_to_keep() const;
 };
 
 #endif

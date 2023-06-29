@@ -193,30 +193,30 @@ std::size_t ElementIpSolver::get_num_elements() const {
   return obj_value * row_sum;
 }
 
-std::vector<bool> ElementIpSolver::get_rows_to_keep() const {
-  std::vector<bool> rows_to_keep(num_rows + forced_one_rows->size(), false);
+std::vector<int> ElementIpSolver::get_rows_to_keep() const {
+  std::vector<int> rows_to_keep(num_rows + forced_one_rows->size(), 0);
 
   for (std::size_t i = 0; i < forced_one_rows->size(); ++i) {
-    rows_to_keep[forced_one_rows->at(i)] = true;
+    rows_to_keep[forced_one_rows->at(i)] = 1;
   }
   for (std::size_t i = 0; i < num_rows; ++i) {
     if (r_var[i] == 1.0) {
-      rows_to_keep[free_rows->at(i)] = true;
+      rows_to_keep[free_rows->at(i)] = 1;
     }
   }
 
   return rows_to_keep;
 }
 
-std::vector<bool> ElementIpSolver::get_cols_to_keep() const {
-  std::vector<bool> cols_to_keep(num_cols + forced_one_cols->size(), false);
+std::vector<int> ElementIpSolver::get_cols_to_keep() const {
+  std::vector<int> cols_to_keep(num_cols + forced_one_cols->size(), 0);
 
   for (std::size_t j = 0; j < forced_one_cols->size(); ++j) {
-    cols_to_keep[forced_one_cols->at(j)] = true;
+    cols_to_keep[forced_one_cols->at(j)] = 1;
   }
   for (std::size_t j = 0; j < num_cols; ++j) {
     if (c_var[j] == 1.0) {
-      cols_to_keep[free_cols->at(j)] = true;
+      cols_to_keep[free_cols->at(j)] = 1;
     }
   }
   
