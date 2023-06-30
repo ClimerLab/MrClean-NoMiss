@@ -86,7 +86,6 @@ int main(int argc, char *argv[]) {
         while (!worker.end()) {
           worker.work();
         }
-        // fprintf(stderr, "Worker %d exiting\n", world_rank);
         break;
       }
     }
