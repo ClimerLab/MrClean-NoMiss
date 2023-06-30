@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
 
     switch (world_rank) {
       case 0: {
+        fprintf(stderr, "Starting Element Solver\n");
         ConfigParser parser("config.cfg");
         const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
         const bool WRITE_STATS = parser.getBool("WRITE_STATS");
@@ -54,10 +55,16 @@ int main(int argc, char *argv[]) {
         timer.restart();
         ElementSolverController controller(data);
         controller.work();
-        controller.signal_workers_to_end();
+
         while (controller.workers_still_working()) {
+          // fprintf(stderr, "Controller done, waiting for workers\n");
           controller.wait_for_workers();
         }
+
+        controller.signal_workers_to_end();
+        // while (controller.workers_still_working()) {
+        //   controller.wait_for_workers();
+        // }
 
         rows_to_keep = controller.get_rows_to_keep();
         cols_to_keep = controller.get_cols_to_keep();
@@ -83,6 +90,7 @@ int main(int argc, char *argv[]) {
         while (!worker.end()) {
           worker.work();
         }
+        // fprintf(stderr, "Worker %d exiting\n", world_rank);
         break;
       }
     }

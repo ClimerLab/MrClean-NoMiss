@@ -10,13 +10,9 @@ CalcPairsCore::CalcPairsCore(const DataContainer &_data,
                                                                             world_size(Parallel::get_world_size()),
                                                                             free_rows(_free_rows),
                                                                             free_cols(_free_cols)
-{
-  fprintf(stderr, "Core initialized on rank %lu\n", world_rank);
-}
+{}
 
-CalcPairsCore::~CalcPairsCore()
-{
-}
+CalcPairsCore::~CalcPairsCore() {}
 
 void CalcPairsCore::work() {
   // fprintf(stderr, "Core %lu starting work\n", world_rank);

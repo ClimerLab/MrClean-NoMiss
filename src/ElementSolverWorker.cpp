@@ -6,6 +6,7 @@ ElementSolverWorker::ElementSolverWorker(const DataContainer &_data) :  data(&_d
                                                                         num_rows(data->get_num_data_rows()),
                                                                         num_cols(data->get_num_data_cols()),
                                                                         world_rank(Parallel::get_world_rank()),
+                                                                        end_(false),
                                                                         row_sum(0),
                                                                         min_cols(0),
                                                                         valid_row(num_rows, 1),
@@ -23,12 +24,18 @@ ElementSolverWorker::ElementSolverWorker(const DataContainer &_data) :  data(&_d
   
   col_pairs.set_size(free_cols.size()-1);
   col_pairs.read("colPairs.csv");
+
+  // fprintf(stderr, "Worker %lu initiated\n", world_rank);
 }
 
 ElementSolverWorker::~ElementSolverWorker() { }
 
 void ElementSolverWorker::work() {
+  // fprintf(stderr, "Worker %lu checking for message\n", world_rank);
   receive_problem();
+  if (end_) {return;}
+
+  // fprintf(stderr, "\tWorker %lu received row_sum=%lu\n", world_rank, row_sum);
 
   ElementIpSolver ip_solver(*data,
                             row_sum,
@@ -69,7 +76,7 @@ void ElementSolverWorker::work() {
     cols_to_keep = ip_solver.get_cols_to_keep();
   }
 
-  fprintf(stderr, "Worker %lu sending solution\n", world_rank);
+  // fprintf(stderr, "Worker %lu sending solution for row_sum=%lu\n", world_rank, row_sum);
   send_back_solution();
 }
 
@@ -201,5 +208,7 @@ void ElementSolverWorker::send_back_solution() {
   if (obj_value > min_cols) {
     MPI_Ssend(&rows_to_keep[0], num_rows, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
     MPI_Ssend(&cols_to_keep[0], num_cols, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+
+    // fprintf(stderr, "*** Worker %lu found new solution\n***", world_rank);
   }
 }

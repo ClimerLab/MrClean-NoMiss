@@ -12,6 +12,7 @@ private:
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::size_t world_rank;
+  bool end_;
 
   std::size_t row_sum;
   std::size_t min_cols;
@@ -31,7 +32,7 @@ private:
   Pairs row_pairs;
   Pairs col_pairs;  
 
-  bool end_;
+  
 
   FILE* open_file_for_read(const std::string &file_name) const;
   void read_forced_one_rows();
