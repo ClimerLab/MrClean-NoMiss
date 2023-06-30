@@ -30,6 +30,13 @@ void write_stats_to_file(const std::string &file_name,
                          const std::size_t num_valid_element,
                          const std::size_t num_rows_kept,
                          const std::size_t num_cols_kept);
-}
 
+void write_solution_to_file(const std::string &file_name,
+                            const std::vector<bool> &rows_to_keep,
+                            const std::vector<bool> &cols_to_keep);
+
+void write_solution_to_file(const std::string &file_name,
+                            const std::vector<int> &rows_to_keep,
+                            const std::vector<int> &cols_to_keep);
+}
 #endif

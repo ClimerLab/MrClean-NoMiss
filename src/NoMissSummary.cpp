@@ -1,4 +1,5 @@
 #include "NoMissSummary.h"
+#include <assert.h>
 
 //------------------------------------------------------------------------------
 // Print summary of algorithm to screen
@@ -57,4 +58,66 @@ void noMissSummary::write_stats_to_file(const std::string &file_name,
   fprintf(summary, "%s,%lf,%lf,%lu,%lu,%lu\n", data_file.c_str(), time, 0.0, num_valid_element, num_rows_kept, num_cols_kept);
 
   fclose(summary);
+}
+
+//------------------------------------------------------------------------------
+// Writes the rows_to_keep and cols_to_keep to a file.
+//------------------------------------------------------------------------------
+void write_solution_to_file(const std::string &file_name,
+                            const std::vector<bool> &rows_to_keep,
+                            const std::vector<bool> &cols_to_keep) {
+  assert(rows_to_keep.size() > 0);
+  assert(cols_to_keep.size() > 0);
+
+  FILE *ouput;
+  
+  if((ouput = fopen(file_name.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "Could not open file (%s)", file_name.c_str());
+    exit(EXIT_FAILURE);
+  }
+  
+  fprintf(ouput, rows_to_keep.at(0) ? "1" : "0");
+  for (std::size_t i = 1; i < rows_to_keep.size(); ++i) {
+    fprintf(ouput, rows_to_keep.at(i) ? "\t1" : "\t0");
+  }
+  fprintf(ouput, "\n");
+
+  fprintf(ouput, cols_to_keep.at(0) ? "1" : "0");
+  for (std::size_t j = 1; j < cols_to_keep.size(); ++j) {
+    fprintf(ouput, cols_to_keep.at(j) ? "\t1" : "\t0");
+  }
+  fprintf(ouput, "\n");
+
+  fclose(ouput);
+}
+
+//------------------------------------------------------------------------------
+// Writes the rows_to_keep and cols_to_keep to a file.
+//------------------------------------------------------------------------------
+void write_solution_to_file(const std::string &file_name,
+                            const std::vector<int> &rows_to_keep,
+                            const std::vector<int> &cols_to_keep) {
+  assert(rows_to_keep.size() > 0);
+  assert(cols_to_keep.size() > 0);
+
+  FILE *ouput;
+  
+  if((ouput = fopen(file_name.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "Could not open file (%s)", file_name.c_str());
+    exit(EXIT_FAILURE);
+  }
+  
+  fprintf(ouput, "%d", rows_to_keep.at(0));
+  for (std::size_t i = 1; i < rows_to_keep.size(); ++i) {
+    fprintf(ouput, "\t%d", rows_to_keep.at(i));
+  }
+  fprintf(ouput, "\n");
+
+  fprintf(ouput, "%d", cols_to_keep.at(0));
+  for (std::size_t j = 1; j < cols_to_keep.size(); ++j) {
+    fprintf(ouput, "\t%d", cols_to_keep.at(j));
+  }
+  fprintf(ouput, "\n");
+
+  fclose(ouput);
 }
