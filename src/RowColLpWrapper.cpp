@@ -60,5 +60,7 @@ int main(int argc, char *argv[]) {
     noMissSummary::write_stats_to_file("RowColLp_summary.csv", data_file, run_time, num_val_elements, num_rows_to_keep, num_cols_to_keep);
   }
 
+  noMissSummary::write_solution_to_file("RowCol.sol", rows_to_keep, cols_to_keep);
+
   return 0;
 }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Parallel.h"
 #include "Utils.h"
+#include "NoMissSummary.h"
 
 //------------------------------------------------------------------------------
 // Constructor.
@@ -33,6 +34,8 @@ ElementSolverController::ElementSolverController(const DataContainer &_data) :  
   best_rows_to_keep = ar_greedy.get_rows_to_keep();
   best_cols_to_keep = ar_greedy.get_cols_to_keep();
   best_num_elements = ar_greedy.get_num_rows_to_keep() * ar_greedy.get_num_cols_to_keep();
+
+  noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
 }
 
 //------------------------------------------------------------------------------
@@ -161,8 +164,6 @@ void ElementSolverController::work() {
 }
 
 void ElementSolverController::signal_workers_to_end() {
-  // fprintf(stderr, "Signalling workers to end\n");
-
   char signal = 0;
   for (std::size_t i = 1; i < world_size; ++i) {
     MPI_Send(&signal, 1, MPI_CHAR, i, Parallel::CONVERGE_TAG, MPI_COMM_WORLD);
@@ -325,6 +326,8 @@ void ElementSolverController::receive_completion() {
     MPI_Recv(&best_rows_to_keep[0], num_rows, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
     MPI_Recv(&best_cols_to_keep[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
     best_num_elements = num_elements;
+
+    noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
   }
   
   // Make the workers available again
