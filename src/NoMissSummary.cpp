@@ -69,26 +69,21 @@ void write_solution_to_file(const std::string &file_name,
   assert(rows_to_keep.size() > 0);
   assert(cols_to_keep.size() > 0);
 
-  FILE *ouput;
-  
-  if((ouput = fopen(file_name.c_str(), "w")) == nullptr) {
+  FILE *output;
+
+  if((output = fopen(file_name.c_str(), "w")) == nullptr) {
     fprintf(stderr, "Could not open file (%s)", file_name.c_str());
     exit(EXIT_FAILURE);
   }
-  
-  fprintf(ouput, rows_to_keep.at(0) ? "1" : "0");
-  for (std::size_t i = 1; i < rows_to_keep.size(); ++i) {
-    fprintf(ouput, rows_to_keep.at(i) ? "\t1" : "\t0");
-  }
-  fprintf(ouput, "\n");
 
-  fprintf(ouput, cols_to_keep.at(0) ? "1" : "0");
-  for (std::size_t j = 1; j < cols_to_keep.size(); ++j) {
-    fprintf(ouput, cols_to_keep.at(j) ? "\t1" : "\t0");
+  for (auto r : rows_to_keep) {
+    fprintf(output, r ? "1\n" : "0\n");
   }
-  fprintf(ouput, "\n");
+  for (auto c : cols_to_keep) {
+    fprintf(output, c ? "1\n" : "0\n");
+  }
 
-  fclose(ouput);
+  fclose(output);
 }
 
 //------------------------------------------------------------------------------
@@ -100,24 +95,95 @@ void write_solution_to_file(const std::string &file_name,
   assert(rows_to_keep.size() > 0);
   assert(cols_to_keep.size() > 0);
 
-  FILE *ouput;
-  
-  if((ouput = fopen(file_name.c_str(), "w")) == nullptr) {
+  FILE *output;
+
+  if((output = fopen(file_name.c_str(), "w")) == nullptr) {
     fprintf(stderr, "Could not open file (%s)", file_name.c_str());
     exit(EXIT_FAILURE);
   }
+
+  for (auto r : rows_to_keep) {
+    fprintf(output, "%d\n", r);
+  }
+  for (auto c : cols_to_keep) {
+    fprintf(output, "%d\n", c);
+  }
+
+  fclose(output);
+}
+
+//------------------------------------------------------------------------------
+// Reads the rows_to_keep and cols_to_keep from a file.
+//------------------------------------------------------------------------------
+void read_solution_from_file(const std::string &file_name,
+                             std::vector<bool> &rows_to_keep,
+                             std::vector<bool> &cols_to_keep) {
+  FILE *input;
+
+  if((input = fopen(file_name.c_str(), "r")) == nullptr) {
+    fprintf(stderr, "Could not open file (%s)", file_name.c_str());
+    exit(EXIT_FAILURE);
+  }
+  char tmp_str[50];
+
+  std::size_t idx = 0;
+  while (true) {
+    fscanf(input, "%s", tmp_str);
+
+    if (feof(input)) {
+      break;
+    }
+
+    if (idx < rows_to_keep.size()) {
+      rows_to_keep[idx] = static_cast<bool>(std::stoi(tmp_str));
+    } else {
+      rows_to_keep[idx - rows_to_keep.size()] = static_cast<bool>(std::stoi(tmp_str));
+    }
+    ++idx;
+  }
+
+  fclose(input);
+
+  if (idx != rows_to_keep.size() + cols_to_keep.size()) {
+    fprintf(stderr, "ERROR - Input file doesn't contain the expected number of elements\n");
+    exit(1);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Reads the rows_to_keep and cols_to_keep from a file.
+//------------------------------------------------------------------------------
+void read_solution_from_file(const std::string &file_name,
+                             std::vector<int> &rows_to_keep,
+                             std::vector<int> &cols_to_keep) {
+  FILE *input;
   
-  fprintf(ouput, "%d", rows_to_keep.at(0));
-  for (std::size_t i = 1; i < rows_to_keep.size(); ++i) {
-    fprintf(ouput, "\t%d", rows_to_keep.at(i));
+  if((input = fopen(file_name.c_str(), "r")) == nullptr) {
+    fprintf(stderr, "Could not open file (%s)", file_name.c_str());
+    exit(EXIT_FAILURE);
   }
-  fprintf(ouput, "\n");
+  char tmp_str[50];
 
-  fprintf(ouput, "%d", cols_to_keep.at(0));
-  for (std::size_t j = 1; j < cols_to_keep.size(); ++j) {
-    fprintf(ouput, "\t%d", cols_to_keep.at(j));
+  std::size_t idx = 0;
+  while (true) {
+    fscanf(input, "%s", tmp_str);
+
+    if (feof(input)) {
+      break;
+    }
+
+    if (idx < rows_to_keep.size()) {
+      rows_to_keep[idx] = std::stoi(tmp_str);
+    } else {
+      rows_to_keep[idx - rows_to_keep.size()] =std::stoi(tmp_str);
+    }
+    ++idx;
   }
-  fprintf(ouput, "\n");
 
-  fclose(ouput);
+  fclose(input);
+
+  if (idx != rows_to_keep.size() + cols_to_keep.size()) {
+    fprintf(stderr, "ERROR - Input file doesn't contain the expected number of elements\n");
+    exit(1);
+  }
 }

@@ -38,5 +38,13 @@ void write_solution_to_file(const std::string &file_name,
 void write_solution_to_file(const std::string &file_name,
                             const std::vector<int> &rows_to_keep,
                             const std::vector<int> &cols_to_keep);
+
+void read_solution_from_file(const std::string &file_name,
+                             std::vector<bool> &rows_to_keep,
+                             std::vector<bool> &cols_to_keep);
+
+void read_solution_from_file(const std::string &file_name,
+                             std::vector<int> &rows_to_keep,
+                             std::vector<int> &cols_to_keep);
 }
 #endif
