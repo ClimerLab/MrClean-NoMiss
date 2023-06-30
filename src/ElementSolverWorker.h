@@ -30,9 +30,7 @@ private:
   std::vector<std::size_t> free_cols;
 
   Pairs row_pairs;
-  Pairs col_pairs;  
-
-  
+  Pairs col_pairs;
 
   FILE* open_file_for_read(const std::string &file_name) const;
   void read_forced_one_rows();
@@ -48,6 +46,6 @@ public:
   ~ElementSolverWorker();
 
   void work();
-  bool end() const;  
+  bool end() const;
 };
 #endif

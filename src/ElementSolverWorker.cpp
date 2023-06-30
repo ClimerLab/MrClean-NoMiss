@@ -24,18 +24,13 @@ ElementSolverWorker::ElementSolverWorker(const DataContainer &_data) :  data(&_d
   
   col_pairs.set_size(free_cols.size()-1);
   col_pairs.read("colPairs.csv");
-
-  // fprintf(stderr, "Worker %lu initiated\n", world_rank);
 }
 
 ElementSolverWorker::~ElementSolverWorker() { }
 
 void ElementSolverWorker::work() {
-  // fprintf(stderr, "Worker %lu checking for message\n", world_rank);
   receive_problem();
   if (end_) {return;}
-
-  // fprintf(stderr, "\tWorker %lu received row_sum=%lu\n", world_rank, row_sum);
 
   ElementIpSolver ip_solver(*data,
                             row_sum,
@@ -178,23 +173,16 @@ void ElementSolverWorker::receive_problem() {
     return;
   }
 
-
-
-//////////////////////////////////////////////////
-/////////////////////////////////////
-///////////////////////////////////////////////
-  // NOTE: Cannot send bool over MPI interface. Convert values to int and then send. 
-
   // Receive whether the idx is for a row or column
   MPI_Recv(&row_sum, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
   // Receive the index
   MPI_Recv(&min_cols, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-  // // Receive valid rows  
+  // Receive valid rows  
   MPI_Recv(&valid_row[0], valid_row.size(), CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-  // // // Receive valid cols
+  // Receive valid cols
   MPI_Recv(&valid_col[0], valid_col.size(), CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 
@@ -208,7 +196,5 @@ void ElementSolverWorker::send_back_solution() {
   if (obj_value > min_cols) {
     MPI_Ssend(&rows_to_keep[0], num_rows, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
     MPI_Ssend(&cols_to_keep[0], num_cols, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
-
-    // fprintf(stderr, "*** Worker %lu found new solution\n***", world_rank);
   }
 }

@@ -57,14 +57,10 @@ int main(int argc, char *argv[]) {
         controller.work();
 
         while (controller.workers_still_working()) {
-          // fprintf(stderr, "Controller done, waiting for workers\n");
           controller.wait_for_workers();
         }
 
         controller.signal_workers_to_end();
-        // while (controller.workers_still_working()) {
-        //   controller.wait_for_workers();
-        // }
 
         rows_to_keep = controller.get_rows_to_keep();
         cols_to_keep = controller.get_cols_to_keep();
@@ -75,7 +71,7 @@ int main(int argc, char *argv[]) {
 
         if (PRINT_SUMMARY) {
           noMissSummary::summarize_results(data, na_symbol, "ElementIp", run_time, num_rows_to_keep, num_cols_to_keep, rows_to_keep, cols_to_keep);
-        } 
+        }
 
         // Wrtie statistics to file
         if (WRITE_STATS) {

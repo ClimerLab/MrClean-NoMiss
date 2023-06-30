@@ -1,7 +1,7 @@
 #include "ElementIpSolver.h"
 #include <assert.h>
 
-ElementIpSolver::ElementIpSolver(const DataContainer &_data,  
+ElementIpSolver::ElementIpSolver(const DataContainer &_data,
                                  const std::size_t _row_sum,
                                  const std::size_t _min_cols,
                                  const std::vector<size_t> &_forced_one_rows,
@@ -177,7 +177,7 @@ void ElementIpSolver::solve() {
       round_extreme_values();
     }
     env.end();
-    
+
   } catch (IloException& e) {
     std::cerr << "Concert exception caught: " << e << std::endl;
   } catch (...) {
@@ -219,6 +219,6 @@ std::vector<int> ElementIpSolver::get_cols_to_keep() const {
       cols_to_keep[free_cols->at(j)] = 1;
     }
   }
-  
+
   return cols_to_keep;
 }

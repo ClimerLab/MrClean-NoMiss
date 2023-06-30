@@ -49,7 +49,7 @@ void ElementSolverController::work() {
   }
   std::sort(num_missing.begin(), num_missing.end());
 
-  // Calculate maximum number of kept columns associated with keeping i rows 
+  // Calculate maximum number of kept columns associated with keeping i rows
   // by subtracting the number of invalid elements of the i-th ordered row from
   // the number of columns
   std::vector<std::size_t> max_cols_possible(num_rows);
@@ -65,7 +65,7 @@ void ElementSolverController::work() {
       sorted_row_sums.push_back(std::make_pair(i+1, i + 1 - best_num_rows));
     } else {
       sorted_row_sums.push_back(std::make_pair(i+1, best_num_rows - (i+1)));
-    }    
+    }
   }
   std::sort(sorted_row_sums.begin(), sorted_row_sums.end(), utils::SortPairBySecondItemIncreasing());
 
@@ -75,12 +75,9 @@ void ElementSolverController::work() {
 
     // Calculate minimum number of columns in solution to improve score
     std::size_t min_cols = (best_num_elements / row_sum) + 1;
-    
-    // fprintf(stderr, "checking row_sum=%lu (min_cols=%lu)\n", row_sum, min_cols);
 
     // Check if 'min_cols' is greater than 'max_cols_possilbe'
-    if (min_cols > max_cols_possible[row_sum-1]) {      
-      // fprintf(stderr, "Skipping row_sum=%lu (%lu vs. %lu)\n", row_sum, max_cols_possible[row_sum-1], min_cols);
+    if (min_cols > max_cols_possible[row_sum-1]) {
       continue;
     }
 
@@ -88,14 +85,14 @@ void ElementSolverController::work() {
     valid_col.resize(free_cols.size(), 1);
 
     const std::size_t min_free_cols = min_cols - forced_one_cols.size();
-    std::size_t free_col_sum_bound = free_cols.size();   
+    std::size_t free_col_sum_bound = free_cols.size();
     bool set_new_col_to_zero = true;
-    
+
     while(set_new_col_to_zero) {
       set_new_col_to_zero = false;
 
       // Loop through all free columns
-      for (std::size_t j = 0; j < free_cols.size(); ++j) {        
+      for (std::size_t j = 0; j < free_cols.size(); ++j) {
         if (!valid_col[j]) continue; // If current column is alread on valid, continue to next column
 
         // Check if the column contains enough valid elements compare to the rowSum
@@ -119,17 +116,14 @@ void ElementSolverController::work() {
       
       // If the number of remaining free columns is below the cuttoff, break from the loop
       if (free_col_sum_bound < min_free_cols - 1) {
-        // fprintf(stderr, "Skipping row_sum=%lu. Remain free cols below threshold\n", row_sum);
         break;
       }
     }
-    // fprintf(stderr, "\tFree col bound: %lu\n", free_col_sum_bound);
-
 
     valid_row.clear();
     valid_row.resize(free_rows.size(), 1);
 
-    const std::size_t min_free_rows = row_sum - forced_one_rows.size();    
+    const std::size_t min_free_rows = row_sum - forced_one_rows.size();
     bool set_new_row_to_zero = true;
     std::size_t free_row_sum_bound = free_rows.size();
     while(set_new_row_to_zero) {
@@ -158,15 +152,12 @@ void ElementSolverController::work() {
       }
     }
 
-    // fprintf(stderr, "\tFree Row Sum Bound: %lu\n", free_row_sum_bound);
-
     if (free_row_sum_bound < min_free_rows) {
-      // fprintf(stderr, "Skipping rowSum=%lu due to num valid rows\n", row_sum);
       continue;
     }
 
     send_problem(row_sum, min_cols);
-  } 
+  }
 }
 
 void ElementSolverController::signal_workers_to_end() {
