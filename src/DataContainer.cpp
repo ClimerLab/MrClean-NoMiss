@@ -329,8 +329,10 @@ std::size_t DataContainer::get_num_valid_data_kept(const std::vector<int> &keep_
 
   std::size_t count = 0;
   for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
+    if (keep_row[i] == 0) { continue; }
+
     for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-      if ((keep_row[i] == 1) && (keep_col[j] == 1) && !is_data_na(i, j)) {
+      if ((keep_col[j] == 1) && !is_data_na(i, j)) {
         ++count;
       }
     }
