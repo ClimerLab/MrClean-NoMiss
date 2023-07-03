@@ -79,6 +79,8 @@ void ElementSolverController::work() {
     // Calculate minimum number of columns in solution to improve score
     std::size_t min_cols = (best_num_elements / row_sum) + 1;
 
+    // fprintf(stderr, "Checking row_sum=%lu - min_cols=%lu\n", row_sum, min_cols);
+
     // Check if 'min_cols' is greater than 'max_cols_possilbe'
     if (min_cols > max_cols_possible[row_sum-1]) {
       continue;
@@ -320,14 +322,20 @@ void ElementSolverController::receive_completion() {
   // Receive obj_value
   std::size_t obj_value;
   MPI_Recv(&obj_value, 1, CUSTOM_SIZE_T, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
-  
-  std::size_t num_elements = row_sum * obj_value;  
-  if (num_elements > best_num_elements) {
-    MPI_Recv(&best_rows_to_keep[0], num_rows, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
-    MPI_Recv(&best_cols_to_keep[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
-    best_num_elements = num_elements;
 
-    noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
+  std::size_t num_elements = row_sum * obj_value;
+  std::vector<int> tmp_rows(num_rows), tmp_cols(num_cols);
+
+  if (obj_value > 0) {
+    if (num_elements > best_num_elements) {
+      MPI_Recv(&best_rows_to_keep[0], num_rows, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&best_cols_to_keep[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
+      best_num_elements = num_elements;
+      noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
+    } else {
+      MPI_Recv(&tmp_rows[0], num_rows, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&tmp_cols[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
+    }
   }
   
   // Make the workers available again

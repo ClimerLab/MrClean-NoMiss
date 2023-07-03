@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
 
     switch (world_rank) {
       case 0: {
-        fprintf(stderr, "Starting Element Solver\n");
         ConfigParser parser("config.cfg");
         const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
         const bool WRITE_STATS = parser.getBool("WRITE_STATS");
