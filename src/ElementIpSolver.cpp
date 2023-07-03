@@ -163,7 +163,7 @@ void ElementIpSolver::solve() {
       // printf("Infeasible Solution\n");
       obj_value = 0;
     } else if (cplex.getStatus() == IloAlgorithm::Optimal) {
-      obj_value = static_cast<std::size_t>(cplex.getObjValue());
+      obj_value = static_cast<std::size_t>(std::round(cplex.getObjValue()));
       cplex.getValues(r, r_copy);
       cplex.getValues(c, c_copy);
 
