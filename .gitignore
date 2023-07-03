@@ -34,6 +34,7 @@ rowColLp
 addRowGreedy
 calcPairs
 elementIp
+writeCleanedMatrix
 
 # Data file
 *.csv
@@ -43,4 +44,3 @@ elementIp
 
 # Scripts
 *.sh
-
