@@ -39,6 +39,8 @@ elementIp
 *.csv
 *.txt
 **.json
+*.sol
 
 # Scripts
 *.sh
+
