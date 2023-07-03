@@ -65,13 +65,13 @@ void ElementSolverWorker::work() {
   }
 
   ip_solver.solve();
+  obj_value = ip_solver.get_obj_value();
 
-  if (ip_solver.get_obj_value() >= min_cols) {
+  if (obj_value >= min_cols) {
     rows_to_keep = ip_solver.get_rows_to_keep();
     cols_to_keep = ip_solver.get_cols_to_keep();
   }
 
-  // fprintf(stderr, "Worker %lu sending solution for row_sum=%lu\n", world_rank, row_sum);
   send_back_solution();
 }
 
@@ -193,7 +193,7 @@ void ElementSolverWorker::send_back_solution() {
   // Send index
   MPI_Ssend(&obj_value, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
 
-  if (obj_value > min_cols) {
+  if (obj_value >= min_cols) {
     MPI_Ssend(&rows_to_keep[0], num_rows, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
     MPI_Ssend(&cols_to_keep[0], num_cols, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
   }
