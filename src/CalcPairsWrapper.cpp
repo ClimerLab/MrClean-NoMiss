@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         fclose(output);
 
         fprintf(stderr, "Summary of CalcPairs\n");
-        fprintf(stderr, "\tTook %lf seconds\n", timer.elapsed_cpu_time());
+        fprintf(stderr, "\tTook %lf seconds\n\n", timer.elapsed_cpu_time());
         
         break;
       }
