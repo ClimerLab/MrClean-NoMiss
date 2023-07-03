@@ -63,9 +63,9 @@ void noMissSummary::write_stats_to_file(const std::string &file_name,
 //------------------------------------------------------------------------------
 // Writes the rows_to_keep and cols_to_keep to a file.
 //------------------------------------------------------------------------------
-void write_solution_to_file(const std::string &file_name,
-                            const std::vector<bool> &rows_to_keep,
-                            const std::vector<bool> &cols_to_keep) {
+void noMissSummary::write_solution_to_file(const std::string &file_name,
+                                           const std::vector<bool> &rows_to_keep,
+                                           const std::vector<bool> &cols_to_keep) {
   assert(rows_to_keep.size() > 0);
   assert(cols_to_keep.size() > 0);
 
@@ -89,9 +89,9 @@ void write_solution_to_file(const std::string &file_name,
 //------------------------------------------------------------------------------
 // Writes the rows_to_keep and cols_to_keep to a file.
 //------------------------------------------------------------------------------
-void write_solution_to_file(const std::string &file_name,
-                            const std::vector<int> &rows_to_keep,
-                            const std::vector<int> &cols_to_keep) {
+void noMissSummary::write_solution_to_file(const std::string &file_name,
+                                           const std::vector<int> &rows_to_keep,
+                                           const std::vector<int> &cols_to_keep) {
   assert(rows_to_keep.size() > 0);
   assert(cols_to_keep.size() > 0);
 
@@ -115,9 +115,9 @@ void write_solution_to_file(const std::string &file_name,
 //------------------------------------------------------------------------------
 // Reads the rows_to_keep and cols_to_keep from a file.
 //------------------------------------------------------------------------------
-void read_solution_from_file(const std::string &file_name,
-                             std::vector<bool> &rows_to_keep,
-                             std::vector<bool> &cols_to_keep) {
+void noMissSummary::read_solution_from_file(const std::string &file_name,
+                                            std::vector<bool> &rows_to_keep,
+                                            std::vector<bool> &cols_to_keep) {
   FILE *input;
 
   if((input = fopen(file_name.c_str(), "r")) == nullptr) {
@@ -137,7 +137,7 @@ void read_solution_from_file(const std::string &file_name,
     if (idx < rows_to_keep.size()) {
       rows_to_keep[idx] = static_cast<bool>(std::stoi(tmp_str));
     } else {
-      rows_to_keep[idx - rows_to_keep.size()] = static_cast<bool>(std::stoi(tmp_str));
+      cols_to_keep[idx - rows_to_keep.size()] = static_cast<bool>(std::stoi(tmp_str));
     }
     ++idx;
   }
@@ -153,9 +153,9 @@ void read_solution_from_file(const std::string &file_name,
 //------------------------------------------------------------------------------
 // Reads the rows_to_keep and cols_to_keep from a file.
 //------------------------------------------------------------------------------
-void read_solution_from_file(const std::string &file_name,
-                             std::vector<int> &rows_to_keep,
-                             std::vector<int> &cols_to_keep) {
+void noMissSummary::read_solution_from_file(const std::string &file_name,
+                                            std::vector<int> &rows_to_keep,
+                                            std::vector<int> &cols_to_keep) {
   FILE *input;
   
   if((input = fopen(file_name.c_str(), "r")) == nullptr) {
@@ -175,7 +175,7 @@ void read_solution_from_file(const std::string &file_name,
     if (idx < rows_to_keep.size()) {
       rows_to_keep[idx] = std::stoi(tmp_str);
     } else {
-      rows_to_keep[idx - rows_to_keep.size()] =std::stoi(tmp_str);
+      cols_to_keep[idx - rows_to_keep.size()] = std::stoi(tmp_str);
     }
     ++idx;
   }
