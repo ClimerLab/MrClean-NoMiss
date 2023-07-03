@@ -19,6 +19,7 @@ private:
   const std::size_t num_cols;
   const std::size_t row_sum;
   const std::size_t min_cols;
+  const std::size_t LARGE_MATRIX;
   const double TOL;
 
   std::vector<double> r_var;
@@ -36,6 +37,7 @@ private:
 
   void build_model();
   void round_extreme_values();
+  bool is_large_matrix() const;
 
 public:
   ElementIpSolver(const DataContainer &_data,  
@@ -45,6 +47,7 @@ public:
                   const std::vector<size_t> &_forced_one_cols,
                   const std::vector<std::size_t> &_free_rows,
                   const std::vector<std::size_t> &_free_cols,
+                  const std::size_t _LARGE_MATRIX,
                   const double _TOL = 0.00001);
   ~ElementIpSolver();
 

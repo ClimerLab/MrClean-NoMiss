@@ -79,7 +79,7 @@ void ElementSolverController::work() {
     // Calculate minimum number of columns in solution to improve score
     std::size_t min_cols = (best_num_elements / row_sum) + 1;
 
-    // fprintf(stderr, "Checking row_sum=%lu - min_cols=%lu\n", row_sum, min_cols);
+    fprintf(stderr, "Checking row_sum=%lu - min_cols=%lu\n", row_sum, min_cols);
 
     // Check if 'min_cols' is greater than 'max_cols_possilbe'
     if (min_cols > max_cols_possible[row_sum-1]) {
@@ -290,7 +290,7 @@ void ElementSolverController::send_problem(const std::size_t row_sum,
   assert(!available_workers.empty()); // Cannot send problem with no available workers
 
   const int worker = available_workers.top();
-  // fprintf(stderr, "Sending rowsum=%lu to worker %d\n", row_sum, worker);
+  fprintf(stderr, "Sending rowsum=%lu to worker %d\n", row_sum, worker);
 
   // Send the row_sum for the problem
   MPI_Send(&row_sum, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);

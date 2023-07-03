@@ -12,6 +12,7 @@ private:
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::size_t world_rank;
+  const std::size_t LARGE_MATRIX;
   bool end_;
 
   std::size_t row_sum;
@@ -42,7 +43,8 @@ private:
   void send_back_solution();
 
 public:
-  ElementSolverWorker(const DataContainer &_data);
+  ElementSolverWorker(const DataContainer &_data,
+                      const std::size_t _LARGE_MATRIX);
   ~ElementSolverWorker();
 
   void work();

@@ -38,13 +38,13 @@ int main(int argc, char *argv[]) {
       num_header_cols = std::stoul(argv[4]);
     }
     DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+    ConfigParser parser("config.cfg");
+    const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
+    const bool WRITE_STATS = parser.getBool("WRITE_STATS");
+    const std::size_t LARGE_MATRIX = parser.getSizeT("LARGE_MATRIX");
 
     switch (world_rank) {
       case 0: {
-        ConfigParser parser("config.cfg");
-        const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
-        const bool WRITE_STATS = parser.getBool("WRITE_STATS");
-
         Timer timer;
         // Construct & solve Element problem
         std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
       }
 
       default: {
-        ElementSolverWorker worker(data);
+        ElementSolverWorker worker(data, LARGE_MATRIX);
         while (!worker.end()) {
           worker.work();
         }

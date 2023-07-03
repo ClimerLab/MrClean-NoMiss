@@ -2,18 +2,20 @@
 #include "Parallel.h"
 #include "ElementIpSolver.h"
 
-ElementSolverWorker::ElementSolverWorker(const DataContainer &_data) :  data(&_data),
-                                                                        num_rows(data->get_num_data_rows()),
-                                                                        num_cols(data->get_num_data_cols()),
-                                                                        world_rank(Parallel::get_world_rank()),
-                                                                        end_(false),
-                                                                        row_sum(0),
-                                                                        min_cols(0),
-                                                                        valid_row(num_rows, 1),
-                                                                        valid_col(num_cols, 1),
-                                                                        obj_value(0),
-                                                                        rows_to_keep(num_rows, 0),
-                                                                        cols_to_keep(num_cols, 0) {
+ElementSolverWorker::ElementSolverWorker(const DataContainer &_data,
+                                         const std::size_t _LARGE_MATRIX) : data(&_data),
+                                                                            num_rows(data->get_num_data_rows()),
+                                                                            num_cols(data->get_num_data_cols()),
+                                                                            world_rank(Parallel::get_world_rank()),
+                                                                            LARGE_MATRIX(_LARGE_MATRIX),
+                                                                            end_(false),
+                                                                            row_sum(0),
+                                                                            min_cols(0),
+                                                                            valid_row(num_rows, 1),
+                                                                            valid_col(num_cols, 1),
+                                                                            obj_value(0),
+                                                                            rows_to_keep(num_rows, 0),
+                                                                            cols_to_keep(num_cols, 0) {
   read_forced_one_rows();
   read_forced_one_cols();
   read_free_rows();
@@ -38,7 +40,8 @@ void ElementSolverWorker::work() {
                             forced_one_rows,
                             forced_one_cols,
                             free_rows,
-                            free_cols);
+                            free_cols,
+                            LARGE_MATRIX);
   
   // Add row constraints based on row_pairs
   for (std::size_t i = 0; i < free_rows.size(); ++i) {
