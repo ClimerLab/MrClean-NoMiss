@@ -28,7 +28,7 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = rowColLp addRowGreedy calcPairs elementIp writeCleanedMatrix
+EXE = rowColLp addRowGreedy calcPairs elementIp writeCleanedMatrix CheckMatrixOrientation
 
 #---------------------------------------------------------------------------------------------------
 # Object files
@@ -42,6 +42,7 @@ CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairsController.o
 ELEMENT_OBJ = $(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o \
 							ElementSolverController.o ElementSolverWorker.o Parallel.o
 CLEAN_OBJ = WriteCleanedMatrix.o DataContainer.o NoMissSummary.o
+ORIENT_OBJ = CheckMatrixOrientation.o DataContainer.o
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -76,6 +77,13 @@ all: $(EXE)
 
 debug: CXXFLAGS += -g
 debug: $(EXE)
+
+CheckMatrixOrientation: $(addprefix $(OBJDIR)/, CheckMatrixOrientation.o)
+	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ORIENT_OBJ)) $(CXXLNFLAGS)
+
+$(OBJDIR)/CheckMatrixOrientation.o:	$(addprefix $(SRCDIR)/, CheckMatrixOrientation.cpp ) \
+																		$(addprefix $(OBJDIR)/, DataContainer.o)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 writeCleanedMatrix: $(addprefix $(OBJDIR)/, WriteCleanedMatrix.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(CLEAN_OBJ)) $(CXXLNFLAGS)

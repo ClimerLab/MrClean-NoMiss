@@ -290,7 +290,7 @@ void ElementSolverController::send_problem(const std::size_t row_sum,
   assert(!available_workers.empty()); // Cannot send problem with no available workers
 
   const int worker = available_workers.top();
-  fprintf(stderr, "Sending rowsum=%lu to worker %d\n", row_sum, worker);
+  // fprintf(stderr, "Sending rowsum=%lu to worker %d\n", row_sum, worker);
 
   // Send the row_sum for the problem
   MPI_Send(&row_sum, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
@@ -332,6 +332,8 @@ void ElementSolverController::receive_completion() {
       MPI_Recv(&best_cols_to_keep[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
       best_num_elements = num_elements;
       noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
+
+      fprintf(stderr, "*** New incumbent: %lu ***\n", num_elements);
     } else {
       MPI_Recv(&tmp_rows[0], num_rows, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
       MPI_Recv(&tmp_cols[0], num_cols, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
