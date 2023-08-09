@@ -8,8 +8,7 @@
 #include "AddRowGreedy.h"
 
 int main(int argc, char *argv[]) {
-
-// Check user input
+  // Check user input
   if (!((argc == 3) || (argc == 5))) {
     fprintf(stderr, "Usage: %s <data_file> <na_symbol>\n", argv[0]);
     exit(1);
@@ -36,7 +35,7 @@ int main(int argc, char *argv[]) {
   // Construct & solve AddRowGreedy problem
   std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
   double run_time = 0.0;
-  std::vector<bool> rows_to_keep(data.get_num_data_rows(), false), cols_to_keep(data.get_num_data_cols(), false);
+  std::vector<int> rows_to_keep(data.get_num_data_rows(), 0), cols_to_keep(data.get_num_data_cols(), 0);
   
   timer.restart();
   AddRowGreedy ar_greedy(data);
@@ -58,6 +57,8 @@ int main(int argc, char *argv[]) {
   if (WRITE_STATS) {
     noMissSummary::write_stats_to_file("Greedy_summary.csv", data_file, run_time, num_val_elements, num_rows_to_keep, num_cols_to_keep);
   }
+
+  noMissSummary::write_solution_to_file("AddRowGreedy.sol", rows_to_keep, cols_to_keep);
 
   return 0;
 }

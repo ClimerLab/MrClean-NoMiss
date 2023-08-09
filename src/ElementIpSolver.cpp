@@ -1,13 +1,14 @@
 #include "ElementIpSolver.h"
 #include <assert.h>
 
-ElementIpSolver::ElementIpSolver(const DataContainer &_data,  
+ElementIpSolver::ElementIpSolver(const DataContainer &_data,
                                  const std::size_t _row_sum,
                                  const std::size_t _min_cols,
                                  const std::vector<size_t> &_forced_one_rows,
                                  const std::vector<size_t> &_forced_one_cols,
                                  const std::vector<std::size_t> &_free_rows,
                                  const std::vector<std::size_t> &_free_cols,
+                                 const std::size_t _LARGE_MATRIX,
                                  const double _TOL) : data(&_data),
                                                       forced_one_rows(&_forced_one_rows),
                                                       forced_one_cols(&_forced_one_cols),
@@ -17,6 +18,7 @@ ElementIpSolver::ElementIpSolver(const DataContainer &_data,
                                                       num_cols(free_cols->size()),
                                                       row_sum(_row_sum),
                                                       min_cols(_min_cols),
+                                                      LARGE_MATRIX(_LARGE_MATRIX),
                                                       TOL(_TOL),
                                                       r_var(num_rows),
                                                       c_var(num_cols),
@@ -52,27 +54,36 @@ void ElementIpSolver::build_model() {
   model.add(row_sum_expr == static_cast<IloNum>(row_sum - forced_one_rows->size()));
 
   // Add constraints for missing data
-  for (std::size_t local_i = 0; local_i < num_rows; ++local_i) {
-    const std::size_t i = free_rows->at(local_i);
+  if (is_large_matrix()) {
+    for (std::size_t local_i = 0; local_i < num_rows; ++local_i) {
+      const std::size_t i = free_rows->at(local_i);
 
-    std::vector<std::size_t> cols_to_exclude;
-    for (std::size_t local_j = 0; local_j < num_cols; ++local_j) {
-      const std::size_t j = free_cols->at(local_j);
+      std::size_t num_excluded = 0;
+      IloExpr col_sum_expr(env);
+      for (std::size_t local_j = 0; local_j < num_cols; ++local_j) {
+        const std::size_t j = free_cols->at(local_j);        
+        if (data->is_data_na(i,j)) {
+          col_sum_expr += c[local_j];
+          ++num_excluded;
+        }
+      }
+      if (num_excluded > 0) {
+        model.add(static_cast<IloNum>(num_excluded) * r[local_i] + col_sum_expr <= static_cast<IloNum>(num_excluded));
+      }
+      col_sum_expr.end();
+    }
+  } else {
+    for (std::size_t local_i = 0; local_i < num_rows; ++local_i) {
+      const std::size_t i = free_rows->at(local_i);
 
-      if (data->is_data_na(i,j)) {
-        // cols_to_exclude.push_back(local_j);
-        model.add(r[local_i] + c[local_j] <= 1);
+      for (std::size_t local_j = 0; local_j < num_cols; ++local_j) {
+        const std::size_t j = free_cols->at(local_j);
+
+        if (data->is_data_na(i,j)) {
+          model.add(r[local_i] + c[local_j] <= 1);
+        }
       }
     }
-
-    // if (!cols_to_exclude.empty()) {
-    //   IloExpr col_sum_expr(env);
-    //   for (auto col : cols_to_exclude) {
-    //     col_sum_expr += c[col];
-    //   }
-    //   model.add(static_cast<IloNum>(cols_to_exclude.size()) * r[local_i] + col_sum_expr <= static_cast<IloNum>(cols_to_exclude.size()));
-    //   col_sum_expr.end();
-    // }
   }
 }
 
@@ -91,6 +102,10 @@ void ElementIpSolver::round_extreme_values() {
       c_var[i] = 0.0;
     }
   }
+}
+
+bool ElementIpSolver::is_large_matrix() const {
+  return num_rows * num_cols >= LARGE_MATRIX;
 }
 
 void ElementIpSolver::set_row_to_zero(const std::size_t row_idx) {
@@ -117,30 +132,40 @@ void ElementIpSolver::add_row_pairs_cut(const std::size_t row_idx, const std::ve
   assert(row_idx < num_rows);
   assert(pairs.size() > 0);
 
-  for (auto p : pairs) {
-    model.add(r[row_idx] + r[p] <= 1);
+  if (is_large_matrix()) {
+    if (!pairs.empty()) {
+      IloExpr row_sum_epxr(env);
+      for (auto p : pairs) {
+        row_sum_epxr += r[p];
+      }
+      model.add(static_cast<IloNum>(pairs.size()) * r[row_idx] + row_sum_epxr <= static_cast<IloNum>(pairs.size()));
+      row_sum_epxr.end();
+    }
+  } else {
+    for (auto p : pairs) {
+      model.add(r[row_idx] + r[p] <= 1);
+    }
   }
-  // IloExpr row_sum_epxr(env);
-  // for (auto p : pairs) {
-  //   row_sum_epxr += r[p];
-  // }
-  // model.add(static_cast<IloNum>(pairs.size()) * r[row_idx] + row_sum_epxr <= static_cast<IloNum>(pairs.size()));
-  // row_sum_epxr.end();
 }
 
 void ElementIpSolver::add_col_pairs_cut(const std::size_t col_idx, const std::vector<std::size_t> &pairs) {
   assert(col_idx < num_cols);
   assert(pairs.size() > 0);
 
-  for (auto p : pairs) {
-    model.add(c[col_idx] + c[p] <= 1);
+  if (is_large_matrix()) {
+    if (!pairs.empty()) {
+      IloExpr col_sum_epxr(env);
+      for (auto p : pairs) {
+        col_sum_epxr += c[p];
+      }
+      model.add(static_cast<IloNum>(pairs.size()) * c[col_idx] + col_sum_epxr <= static_cast<IloNum>(pairs.size()));
+      col_sum_epxr.end();
+    }
+  } else {
+    for (auto p : pairs) {
+      model.add(c[col_idx] + c[p] <= 1);
+    }
   }
-  // IloExpr col_sum_epxr(env);
-  // for (auto p : pairs) {
-  //   col_sum_epxr += r[p];
-  // }
-  // model.add(static_cast<IloNum>(pairs.size()) * c[col_idx] + col_sum_epxr <= static_cast<IloNum>(pairs.size()));
-  // col_sum_epxr.end();
 }
 
 void ElementIpSolver::solve() {
@@ -149,9 +174,8 @@ void ElementIpSolver::solve() {
   if (min_cols > 0) {
     cplex.setParam(IloCplex::Param::MIP::Tolerances::LowerCutoff, min_cols);
   }
-  
-  obj_value = 0;
 
+  obj_value = 0;
   cplex.setParam(IloCplex::Param::RandomSeed, 0);
   cplex.setParam(IloCplex::Param::Threads, 1);
   cplex.setOut(env.getNullStream());
@@ -163,7 +187,7 @@ void ElementIpSolver::solve() {
       // printf("Infeasible Solution\n");
       obj_value = 0;
     } else if (cplex.getStatus() == IloAlgorithm::Optimal) {
-      obj_value = static_cast<std::size_t>(cplex.getObjValue());
+      obj_value = static_cast<std::size_t>(std::round(cplex.getObjValue()));
       cplex.getValues(r, r_copy);
       cplex.getValues(c, c_copy);
 
@@ -177,7 +201,7 @@ void ElementIpSolver::solve() {
       round_extreme_values();
     }
     env.end();
-    
+
   } catch (IloException& e) {
     std::cerr << "Concert exception caught: " << e << std::endl;
   } catch (...) {
@@ -193,32 +217,32 @@ std::size_t ElementIpSolver::get_num_elements() const {
   return obj_value * row_sum;
 }
 
-std::vector<bool> ElementIpSolver::get_rows_to_keep() const {
-  std::vector<bool> rows_to_keep(num_rows + forced_one_rows->size(), false);
+std::vector<int> ElementIpSolver::get_rows_to_keep() const {
+  std::vector<int> rows_to_keep(num_rows + forced_one_rows->size(), 0);
 
   for (std::size_t i = 0; i < forced_one_rows->size(); ++i) {
-    rows_to_keep[forced_one_rows->at(i)] = true;
+    rows_to_keep[forced_one_rows->at(i)] = 1;
   }
   for (std::size_t i = 0; i < num_rows; ++i) {
     if (r_var[i] == 1.0) {
-      rows_to_keep[free_rows->at(i)] = true;
+      rows_to_keep[free_rows->at(i)] = 1;
     }
   }
 
   return rows_to_keep;
 }
 
-std::vector<bool> ElementIpSolver::get_cols_to_keep() const {
-  std::vector<bool> cols_to_keep(num_cols + forced_one_cols->size(), false);
+std::vector<int> ElementIpSolver::get_cols_to_keep() const {
+  std::vector<int> cols_to_keep(num_cols + forced_one_cols->size(), 0);
 
   for (std::size_t j = 0; j < forced_one_cols->size(); ++j) {
-    cols_to_keep[forced_one_cols->at(j)] = true;
+    cols_to_keep[forced_one_cols->at(j)] = 1;
   }
   for (std::size_t j = 0; j < num_cols; ++j) {
     if (c_var[j] == 1.0) {
-      cols_to_keep[free_cols->at(j)] = true;
+      cols_to_keep[free_cols->at(j)] = 1;
     }
   }
-  
+
   return cols_to_keep;
 }

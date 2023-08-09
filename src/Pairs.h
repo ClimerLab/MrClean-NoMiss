@@ -32,9 +32,11 @@ public:
   std::vector<std::size_t> getPairsGteThresh(const std::size_t idx, const unsigned int threshold) const;
   std::vector<std::size_t> getPairsLtThresh(const std::size_t idx, const unsigned int threshold) const;
   std::vector<std::size_t> getPairsLtThresh(const std::size_t idx, const unsigned int threshold, const std::vector<bool> valid) const;
+  std::vector<std::size_t> getPairsLtThresh(const std::size_t idx, const unsigned int threshold, const std::vector<int> valid) const;
 
   std::size_t getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold) const;
   std::size_t getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold, const std::vector<bool> valid) const;
+  std::size_t getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold, const std::vector<int> valid) const;
   
 };
 

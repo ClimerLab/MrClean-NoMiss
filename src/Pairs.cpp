@@ -131,6 +131,27 @@ std::vector<std::size_t> Pairs::getPairsLtThresh(const std::size_t idx, const un
   return pairs;
 }
 
+std::vector<std::size_t> Pairs::getPairsLtThresh(const std::size_t idx, const unsigned int threshold, const std::vector<int> valid) const {
+    assert(idx < values.size());
+  
+  std::vector<std::size_t> pairs;
+
+  for (std::size_t i = 0; i < idx; ++i) {
+    if (valid[i] && values[i][idx-i-1] < threshold) {
+      pairs.push_back(i);
+    }
+  }
+
+  if (idx < values.size()) {
+    for (std::size_t j = 0; j < values[idx].size(); ++j) {
+      if (valid[idx+1+j] && values[idx][j] < threshold) {
+        pairs.push_back(idx + 1 + j);
+      }
+    }
+  }
+  return pairs;
+}
+
 std::size_t Pairs::getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold) const {
   assert(idx < values.size());
   std::size_t count = 0;
@@ -152,6 +173,32 @@ std::size_t Pairs::getNumPairsGteThresh(const std::size_t idx, const unsigned in
 }
 
 std::size_t Pairs::getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold, const std::vector<bool> valid) const {  
+  assert(idx < valid.size());
+
+  if (!valid[idx]) {
+    return 0;
+  }
+
+  std::size_t count = 0;
+
+  for (std::size_t i = 0; i < idx; ++i) {
+    if (valid[i] && values[i][idx-i-1] >= threshold) {
+      ++count;
+    }
+  }
+
+  if (idx < values.size()) {
+    for (std::size_t j = 0; j < values[idx].size(); ++j) {
+      if (valid[idx + 1 + j] && values[idx][j] >= threshold) {
+        ++count;
+      }
+    }
+  }
+  
+  return count;
+}
+
+std::size_t Pairs::getNumPairsGteThresh(const std::size_t idx, const unsigned int threshold, const std::vector<int> valid) const {
   assert(idx < valid.size());
 
   if (!valid[idx]) {

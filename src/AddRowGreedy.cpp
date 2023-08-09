@@ -207,12 +207,12 @@ void AddRowGreedy::update_alphas(const std::size_t row) {
 // Returns a boolean vector where elements are 'true' if the corresponding row
 // is kept and 'false' if the row is removed.
 //------------------------------------------------------------------------------
-std::vector<bool> AddRowGreedy::get_rows_to_keep() const {
-  std::vector<bool> rows_to_keep(num_rows, false);
+std::vector<int> AddRowGreedy::get_rows_to_keep() const {
+  std::vector<int> rows_to_keep(num_rows, 0);
 
   for (std::size_t i = 0; i < best_num_rows; ++i) {
     std::size_t row = included_rows[i];
-    rows_to_keep[row] = true;
+    rows_to_keep[row] = 1;
   }
 
   return rows_to_keep;
@@ -222,14 +222,14 @@ std::vector<bool> AddRowGreedy::get_rows_to_keep() const {
 // Returns a boolean vector where elements are 'true' if the corresponding
 // column is kept and 'false' if the column is removed.
 //------------------------------------------------------------------------------
-std::vector<bool> AddRowGreedy::get_cols_to_keep() const {
-  std::vector<bool> cols_to_keep(num_cols, true);
+std::vector<int> AddRowGreedy::get_cols_to_keep() const {
+  std::vector<int> cols_to_keep(num_cols, 1);
 
   for (std::size_t j = 0; j < num_cols; ++j) {
     for (std::size_t k = 0; k < best_num_rows; ++k) {
       std::size_t i = included_rows[k];
       if (data->is_data_na(i,j)) {
-        cols_to_keep[j] = false;
+        cols_to_keep[j] = 0;
         break;
       }
     }

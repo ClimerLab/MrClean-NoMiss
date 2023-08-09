@@ -34,11 +34,13 @@ rowColLp
 addRowGreedy
 calcPairs
 elementIp
+writeCleanedMatrix
 
 # Data file
 *.csv
 *.txt
 **.json
+*.sol
 
 # Scripts
 *.sh

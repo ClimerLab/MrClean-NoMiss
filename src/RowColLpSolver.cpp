@@ -43,11 +43,24 @@ void RowColLpSolver::build_model() {
   model.add(IloMaximize(env, obj, "Objective"));
 
   for (std::size_t i = 0; i < num_rows; ++i) {
+
     for (std::size_t j = 0; j < num_cols; ++j) {
       if (data->is_data_na(i,j)) {
         model.add(r[i] + c[j] <= 1);
       }
     }
+    // std::size_t num_excluded = 0;
+    // IloExpr col_sum_expr(env);
+    // for (std::size_t j = 0; j < num_cols; ++j) {
+    //   if (data->is_data_na(i,j)) {
+    //     col_sum_expr += c[j];
+    //     ++num_excluded;
+    //   }
+    // }
+    // if (num_excluded > 0) {
+    //   model.add(static_cast<IloNum>(num_excluded) * r[i] + col_sum_expr <= static_cast<IloNum>(num_excluded));
+    // }
+    // col_sum_expr.end();
   }
 }
 
@@ -82,6 +95,7 @@ void RowColLpSolver::solve() {
   
   cplex.setParam(IloCplex::Param::RandomSeed, 0);
   cplex.setParam(IloCplex::Param::Threads, 1);
+  cplex.setParam(IloCplex::Param::RootAlgorithm, IloCplex::Algorithm::Barrier);
   cplex.setOut(env.getNullStream());
 
   obj_value = 0.0;

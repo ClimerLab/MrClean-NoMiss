@@ -226,6 +226,127 @@ void DataContainer::write(const std::string &file_name,
   fclose(output);
 }
 
+
+//------------------------------------------------------------------------------
+// Writes out the header rows, header columns, and data, based on the
+// 'rows_to_keep' and 'cols_to_keep' vectors. For header rows, the header is
+// printed if the 'rows_to_keep' element is 1. For header cols, the header is
+// printed if 'cols_to_keep' is 1. The data elements are printed if the
+// corresponding 'rows_to_keep' and 'cols_to_keep' are both 1.
+//------------------------------------------------------------------------------
+void DataContainer::write(const std::string &file_name,
+                          const std::vector<int> &rows_to_keep,
+                          const std::vector<int> &cols_to_keep) const
+{
+  assert(header_rows.size() > 0);
+  assert(header_cols.size() > 0);
+  assert(data.size() > 0);
+  assert(data.size() == rows_to_keep.size());
+  assert(data[0].size() == cols_to_keep.size());
+  assert(header_cols.size() == data.size());
+  assert(header_rows[0].size() == header_cols[0].size() + data[0].size());
+  
+  const std::size_t num_header_rows = get_num_header_rows();
+  const std::size_t num_header_cols = get_num_header_cols();
+  const std::size_t num_data_rows = get_num_data_rows();
+  const std::size_t num_data_cols = get_num_data_cols();
+
+  FILE *output;
+  if ((output = fopen(file_name.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "ERROR - Could not open file (%s).\n", file_name.c_str());
+    exit(EXIT_FAILURE);
+  }
+ 
+  // Write header rows
+  for (std::size_t i = 0; i < num_header_rows; ++i) {
+    fprintf(output, "%s", header_rows[i][0].c_str());
+
+    for (std::size_t j = 1; j < num_header_cols; ++j) {
+      fprintf(output, "\t%s", header_rows[i][j].c_str());
+    }
+
+    for (std::size_t j = 0; j < num_data_cols; ++j) {
+      if (cols_to_keep[j]) {
+        fprintf(output, "\t%s", header_rows[i][j + num_header_cols].c_str());
+      }
+    }
+    fprintf(output, "\n");
+  }
+
+  // Write header cols and data
+  for (std::size_t i = 0; i < num_data_rows; ++i) {
+    if (rows_to_keep[i]) {
+      fprintf(output, "%s", header_cols[i][0].c_str());
+
+      for (std::size_t j = 1; j < num_header_cols; ++j) {
+        fprintf(output, "\t%s", header_cols[i][j].c_str());
+      }
+
+      for (std::size_t j = 0; j < num_data_cols; ++j) {
+        if (cols_to_keep[j]) {
+          fprintf(output, "\t%s", data[i][j].c_str());
+        }
+      }
+      fprintf(output, "\n");
+    }
+  }
+
+  fclose(output);
+}
+
+void DataContainer::write_transpose(const std::string &file_name) const {
+assert(header_rows.size() > 0);
+  assert(header_cols.size() > 0);
+  assert(data.size() > 0);
+  assert(header_cols.size() == data.size());
+  assert(header_rows[0].size() == header_cols[0].size() + data[0].size());
+  
+  const std::size_t num_header_rows = get_num_header_rows();
+  const std::size_t num_header_cols = get_num_header_cols();
+  const std::size_t num_data_rows = get_num_data_rows();
+  const std::size_t num_data_cols = get_num_data_cols();
+
+  FILE *output;
+  if ((output = fopen(file_name.c_str(), "w")) == nullptr) {
+    fprintf(stderr, "ERROR - Could not open file (%s).\n", file_name.c_str());
+    exit(EXIT_FAILURE);
+  }
+ 
+  // Write header columns
+  for (std::size_t j = 0; j < num_header_cols; ++j) {
+
+    fprintf(output, "%s", header_rows[0][j].c_str());
+
+    for (std::size_t i = 1; i < num_header_rows; ++i) {
+      fprintf(output, "\t%s", header_rows[i][j].c_str());
+    }
+
+    for (std::size_t k = 0; k < header_cols.size(); ++k) {
+      fprintf(output, "\t%s", header_cols[k][j].c_str());
+    }
+
+    fprintf(output, "\n");
+  }
+
+  // // Write header rows and data
+  const std::size_t offset =  header_cols[0].size();
+  for (std::size_t j = 0; j < num_data_cols; ++j) {
+
+    fprintf(output, "%s", header_rows[0][j + offset].c_str());
+
+    for (std::size_t i = 1; i < num_header_rows; ++i) {
+      fprintf(output, "\t%s", header_rows[i][j + offset].c_str());
+    }
+
+    for (std::size_t i = 0; i < num_data_rows; ++i) {
+      fprintf(output, "\t%s", data[i][j].c_str());
+    }
+    fprintf(output, "\n");
+  }
+
+  fclose(output);
+}
+
 //------------------------------------------------------------------------------
 // Returns the total number of data elements kept. An element is only kept if
 // the corresponding 'keep_row' and 'keep_col' are both true. Inpute vectors
@@ -261,8 +382,10 @@ std::size_t DataContainer::get_num_valid_data_kept(const std::vector<int> &keep_
 
   std::size_t count = 0;
   for (std::size_t i = 0; i < get_num_data_rows(); ++i) {
+    if (keep_row[i] == 0) { continue; }
+
     for (std::size_t j = 0; j < get_num_data_cols(); ++j) {
-      if ((keep_row[i] == 1) && (keep_col[j] == 1) && !is_data_na(i, j)) {
+      if ((keep_col[j] == 1) && !is_data_na(i, j)) {
         ++count;
       }
     }
