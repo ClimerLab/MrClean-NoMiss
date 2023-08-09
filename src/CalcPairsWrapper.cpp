@@ -81,6 +81,7 @@ int main(int argc, char* argv[]) {
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
+
   std::string file_name = "CalcPairs.csv";
   FILE* output;
   if((output = fopen(file_name.c_str(), "a+")) == nullptr) {
@@ -93,7 +94,7 @@ int main(int argc, char* argv[]) {
   fprintf(stderr, "Summary of CalcPairs\n");
   fprintf(stderr, "\tTook %lf seconds\n\n", timer.elapsed_cpu_time());
 
-
   MPI_Finalize();
+ 
   return 0;
 }
