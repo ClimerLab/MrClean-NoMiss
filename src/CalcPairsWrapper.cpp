@@ -69,9 +69,9 @@ int main(int argc, char* argv[]) {
 
       default: {
         CalcPairsWorker worker(data);
-        while (!worker.end()) {
+        // while (!worker.end()) {
           worker.work();
-        }
+        // }
         // fprintf(stderr, "Worker has ended\n");
         break;
       }
