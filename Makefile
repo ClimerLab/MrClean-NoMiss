@@ -40,7 +40,7 @@ GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairsController.o \
 								CalcPairsWorker.o Parallel.o CalcPairsCore.o
 ELEMENT_OBJ = $(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o \
-							ElementSolverController.o ElementSolverWorker.o Parallel.o
+							ElementSolverController.o ElementSolverWorker.o Parallel.o CleanSolution.o
 CLEAN_OBJ = WriteCleanedMatrix.o DataContainer.o NoMissSummary.o
 ORIENT_OBJ = CheckMatrixOrientation.o DataContainer.o
 
@@ -97,14 +97,14 @@ elementIp: $(addprefix $(OBJDIR)/, ElementWrapper.o)
 
 $(OBJDIR)/ElementWrapper.o:	$(addprefix $(SRCDIR)/, ElementWrapper.cpp ) \
 														$(addprefix $(OBJDIR)/, ElementSolverController.o ElementSolverWorker.o) \
-														$(addprefix $(OBJDIR)/, Parallel.o) \
+														$(addprefix $(OBJDIR)/, Parallel.o CleanSolution.o) \
 														$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/ElementSolverController.o:	$(addprefix $(SRCDIR)/, ElementSolverController.cpp ElementSolverController.h) \
 																			$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
 																			$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o) \
-																			$(addprefix $(SRCDIR)/, Utils.h)
+																			$(addprefix $(SRCDIR)/, Utils.h  CleanSolution.o)
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/ElementSolverWorker.o:	$(addprefix $(SRCDIR)/, ElementSolverWorker.cpp ElementSolverWorker.h) \
@@ -177,6 +177,9 @@ $(OBJDIR)/ConfigParser.o: $(addprefix $(SRCDIR)/, ConfigParser.cpp ConfigParser.
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/Parallel.o: $(addprefix $(SRCDIR)/, Parallel.cpp Parallel.h)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/CleanSolution.o: $(addprefix $(SRCDIR)/, CleanSolution.cpp CleanSolution.h)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 #---------------------------------------------------------------------------------------------------

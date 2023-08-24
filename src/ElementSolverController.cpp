@@ -4,15 +4,17 @@
 #include "Parallel.h"
 #include "Utils.h"
 #include "NoMissSummary.h"
+#include "CleanSolution.h"
 
 //------------------------------------------------------------------------------
 // Constructor.
 //------------------------------------------------------------------------------
-ElementSolverController::ElementSolverController(const DataContainer &_data) :  data(&_data),
-                                                                                num_rows(data->get_num_data_rows()),
-                                                                                num_cols(data->get_num_data_cols()),
-                                                                                world_size(Parallel::get_world_size()),
-                                                                                best_num_elements(0) {
+ElementSolverController::ElementSolverController(const DataContainer &_data,
+                                                 const std::string &incumbent_file) : data(&_data),
+                                                                                      num_rows(data->get_num_data_rows()),
+                                                                                      num_cols(data->get_num_data_cols()),
+                                                                                      world_size(Parallel::get_world_size()),
+                                                                                      best_num_elements(0) {
   for (std::size_t i = world_size - 1; i > 0; --i) {
     available_workers.push(i);
   }
@@ -28,12 +30,14 @@ ElementSolverController::ElementSolverController(const DataContainer &_data) :  
   col_pairs.set_size(free_cols.size()-1);
   col_pairs.read("colPairs.csv");
 
-  AddRowGreedy ar_greedy(*data);
-  ar_greedy.solve();
+  CleanSolution sol(num_rows, num_cols);
+  if (!incumbent_file.empty()) {
+    sol.read_from_file(incumbent_file);
+  }
 
-  best_rows_to_keep = ar_greedy.get_rows_to_keep();
-  best_cols_to_keep = ar_greedy.get_cols_to_keep();
-  best_num_elements = ar_greedy.get_num_rows_to_keep() * ar_greedy.get_num_cols_to_keep();
+  best_rows_to_keep = sol.get_rows_to_keep();
+  best_cols_to_keep = sol.get_cols_to_keep();
+  best_num_elements = sol.get_num_cols_kept() * sol.get_num_cols_kept();
 
   noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
 }
