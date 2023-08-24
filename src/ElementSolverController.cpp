@@ -37,7 +37,7 @@ ElementSolverController::ElementSolverController(const DataContainer &_data,
 
   best_rows_to_keep = sol.get_rows_to_keep();
   best_cols_to_keep = sol.get_cols_to_keep();
-  best_num_elements = sol.get_num_cols_kept() * sol.get_num_cols_kept();
+  best_num_elements = sol.get_num_rows_kept() * sol.get_num_cols_kept();
 
   noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
 }
