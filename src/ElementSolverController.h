@@ -50,7 +50,8 @@ private:
   void receive_completion();  
 
 public:
-  ElementSolverController(const DataContainer &_data);
+  ElementSolverController(const DataContainer &_data,
+                          const std::string &incumbent_file);
   ~ElementSolverController();
 
   void work();

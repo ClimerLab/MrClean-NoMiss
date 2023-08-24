@@ -69,9 +69,9 @@ int main(int argc, char* argv[]) {
 
       default: {
         CalcPairsWorker worker(data);
-        // while (!worker.end()) {
+        while (!worker.end()) {
           worker.work();
-        // }
+        }
         // fprintf(stderr, "Worker has ended\n");
         break;
       }
@@ -80,6 +80,7 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "  *** Fatal error reported by rank_%d: %s *** \n", world_rank, e.what());    
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
+
   MPI_Finalize();
  
   return 0;
