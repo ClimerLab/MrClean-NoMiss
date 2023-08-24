@@ -80,6 +80,20 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "  *** Fatal error reported by rank_%d: %s *** \n", world_rank, e.what());    
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
+
+
+  std::string file_name = "CalcPairs.csv";
+  FILE* output;
+  if((output = fopen(file_name.c_str(), "a+")) == nullptr) {
+    fprintf(output, "ERROR - Could not open file (%s)\n", file_name.c_str());
+    exit(1);
+  }
+  fprintf(output, "%s,%lf\n", data_file.c_str(), timer.elapsed_cpu_time());
+  fclose(output);
+
+  fprintf(stderr, "Summary of CalcPairs\n");
+  fprintf(stderr, "\tTook %lf seconds\n\n", timer.elapsed_cpu_time());
+
   MPI_Finalize();
  
   return 0;
