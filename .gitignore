@@ -35,6 +35,7 @@ addRowGreedy
 calcPairs
 elementIp
 writeCleanedMatrix
+CheckMatrixOrientation
 
 # Data file
 *.csv
@@ -44,3 +45,6 @@ writeCleanedMatrix
 
 # Scripts
 *.sh
+
+# Datafile
+*.ods
