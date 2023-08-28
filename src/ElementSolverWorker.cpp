@@ -2,9 +2,11 @@
 #include "Parallel.h"
 
 ElementSolverWorker::ElementSolverWorker(const DataContainer &_data,
+                                         const std::string &_scratch_dir,
                                          const std::size_t _LARGE_MATRIX) : data(&_data),
                                                                             num_rows(data->get_num_data_rows()),
                                                                             num_cols(data->get_num_data_cols()),
+                                                                            scratch_file(_scratch_dir),
                                                                             world_rank(Parallel::get_world_rank()),
                                                                             LARGE_MATRIX(_LARGE_MATRIX),
                                                                             end_(false),
@@ -83,7 +85,8 @@ FILE* ElementSolverWorker::open_file_for_read(const std::string &file_name) cons
 }
 
 void ElementSolverWorker::read_forced_one_rows() {
-  FILE* input = open_file_for_read("forcedOneRows.txt");
+  std::string file_name = scratch_file + "forcedOneRows.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -100,7 +103,8 @@ void ElementSolverWorker::read_forced_one_rows() {
 }
 
 void ElementSolverWorker::read_forced_one_cols() {
-  FILE* input = open_file_for_read("forcedOneCols.txt");
+  std::string file_name = scratch_file + "forcedOneCols.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -117,7 +121,8 @@ void ElementSolverWorker::read_forced_one_cols() {
 }
 
 void ElementSolverWorker::read_free_rows() {
-  FILE* input = open_file_for_read("freeRows.txt");
+  std::string file_name = scratch_file + "freeRows.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -134,7 +139,8 @@ void ElementSolverWorker::read_free_rows() {
 }
 
 void ElementSolverWorker::read_free_cols() {
-  FILE* input = open_file_for_read("freeCols.txt");
+  std::string file_name = scratch_file + "freeCols.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -173,45 +179,27 @@ void ElementSolverWorker::receive_problem() {
   // Receive the index
   MPI_Recv(&min_cols, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-  // Receive valid rows  
-  // MPI_Recv(&valid_row[0], valid_row.size(), CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-  // Receive valid cols
-  // MPI_Recv(&valid_col[0], valid_col.size(), CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
   std::vector<std::size_t> pairs;
   std::size_t num_pairs;
 
-  // fprintf(stderr, "Received row_sum and min_cols\n");
   // Loop through each free row & receive row-pairs if it is valid
   for (std::size_t i = 0; i < free_rows.size()-1; ++i) {
     MPI_Recv(&valid_row[i], 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    // fprintf(stderr, "Row %lu is %d\n", i, valid_row[i]);
     if (valid_row[i] == 1) {
       MPI_Recv(&num_pairs, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      // fprintf(stderr, "Row %lu has %lu pairs below thershold\n", i, num_pairs);
+
       if (num_pairs > 0) {
         pairs.resize(num_pairs);
         MPI_Recv(&pairs[0], num_pairs, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        for (auto p : pairs) {
-          if (p >= num_rows) {
-            fprintf(stderr, "ERROR - Trying to send row pair (%lu, %lu)\n", i, p);
-            exit(1);
-          }
-        }
         row_pairs.push_back(std::make_pair(i, pairs));
         pairs.clear();
       }
-
-      
     }
   }
   MPI_Recv(&valid_row[free_rows.size()-1], 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  // fprintf(stderr, "Row %lu is %d\n", free_rows.size()-1, valid_row[free_rows.size()-1]);
-  // fprintf(stderr, "Received row_pairs\n");
-
+  
   // Loop through each free column & receive col-pairs if it is valid
   for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
     MPI_Recv(&valid_col[j], 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -219,13 +207,6 @@ void ElementSolverWorker::receive_problem() {
     if (valid_col[j] == 1) {
       MPI_Recv(&num_pairs, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);      
       
-      // fprintf(stderr, "Receiving %lu pairs for col %lu\n", num_pairs, j);
-
-      if (num_pairs >= free_cols.size()) {
-        fprintf(stderr, "Receving %lu pairs\n", num_pairs);
-        exit(1);
-      }
-
       if (num_pairs > 0) {
         pairs.resize(num_pairs);
         MPI_Recv(&pairs[0], num_pairs, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -242,51 +223,6 @@ void ElementSolverWorker::receive_problem() {
     }
   }
   MPI_Recv(&valid_col[free_cols.size()-1], 1, MPI_INT, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  // fprintf(stderr, "Col %lu is %d\n", free_cols.size()-1, valid_col[free_cols.size()-1]);
-  // fprintf(stderr, "Received col_pairs\n");
-  // // Loop through each free column & send col-pairs if it is valid
-  // for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
-  //   MPI_Send(&valid_col[j], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
-  //   if (valid_col[j] == 1) {
-  //     auto cp = row_pairs.getPairsLtThresh(j, min_cols, valid_col);
-  //     std::size_t num_pairs = cp.size();
-  //     MPI_Send(&num_pairs, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
-  //     if (num_pairs > 0) {
-  //       MPI_Send(&cp[0], cp.size(), CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
-  //     }
-  //   }
-  // }
-  // MPI_Send(&valid_col[free_cols.size()-1], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
-  // // Add row constraints based on row_pairs
-  // for (std::size_t i = 0; i < free_rows.size(); ++i) {    
-  //   MPI_Recv(&num_pairs, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  //   pairs.resize(num_pairs);
-  //   if (num_pairs > 0) {
-  //     MPI_Recv(&pairs[0], num_pairs, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  //   }
-  //   if (valid_row[i]) {
-  //     if (!pairs.empty()) {
-  //       ip_solver.add_row_pairs_cut(i, pairs);
-  //     }
-  //   } else {
-  //     ip_solver.set_row_to_zero(i);
-  //   }
-  // }
-  // // Add columns constraints based on col_pairs
-  // for (std::size_t j = 0; j < free_cols.size(); ++j) {
-  //   MPI_Recv(&num_pairs, 1, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  //   pairs.resize(num_pairs);
-  //   if (num_pairs > 0) {
-  //     MPI_Recv(&pairs[0], num_pairs, CUSTOM_SIZE_T, 0, Parallel::SPARSE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  //   }
-  //   if (valid_col[j]) {
-  //     if (!pairs.empty()) {
-  //       ip_solver.add_col_pairs_cut(j, pairs);
-  //     }
-  //   } else {
-  //     ip_solver.set_col_to_zero(j);
-  //   }
-  // }
 }
 
 void ElementSolverWorker::send_back_solution() {

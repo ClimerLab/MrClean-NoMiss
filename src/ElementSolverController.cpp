@@ -10,9 +10,11 @@
 // Constructor.
 //------------------------------------------------------------------------------
 ElementSolverController::ElementSolverController(const DataContainer &_data,
+                                                 const std::string &_scratch_dir,
                                                  const std::string &incumbent_file) : data(&_data),
                                                                                       num_rows(data->get_num_data_rows()),
                                                                                       num_cols(data->get_num_data_cols()),
+                                                                                      scratch_dir(_scratch_dir),
                                                                                       world_size(Parallel::get_world_size()),
                                                                                       best_num_elements(0) {
   for (std::size_t i = world_size - 1; i > 0; --i) {
@@ -24,11 +26,13 @@ ElementSolverController::ElementSolverController(const DataContainer &_data,
   read_free_rows();
   read_free_cols();
 
+  std::string file_name = scratch_dir + "rowPairs.csv";
   row_pairs.set_size(free_rows.size()-1);
-  row_pairs.read("rowPairs.csv");
+  row_pairs.read(file_name);
   
   col_pairs.set_size(free_cols.size()-1);
-  col_pairs.read("colPairs.csv");
+  file_name = scratch_dir + "colPairs.csv";
+  col_pairs.read(file_name);
 
   CleanSolution sol(num_rows, num_cols);
   if (!incumbent_file.empty()) {
@@ -218,7 +222,8 @@ FILE* ElementSolverController::open_file_for_read(const std::string &file_name) 
 }
 
 void ElementSolverController::read_forced_one_rows() {
-  FILE* input = open_file_for_read("forcedOneRows.txt");
+  std::string file_name = scratch_dir + "forcedOneRows.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -235,7 +240,8 @@ void ElementSolverController::read_forced_one_rows() {
 }
 
 void ElementSolverController::read_forced_one_cols() {
-  FILE* input = open_file_for_read("forcedOneCols.txt");
+  std::string file_name = scratch_dir + "forcedOneCols.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -252,7 +258,8 @@ void ElementSolverController::read_forced_one_cols() {
 }
 
 void ElementSolverController::read_free_rows() {
-  FILE* input = open_file_for_read("freeRows.txt");
+  std::string file_name = scratch_dir + "freeRows.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -269,7 +276,8 @@ void ElementSolverController::read_free_rows() {
 }
 
 void ElementSolverController::read_free_cols() {
-  FILE* input = open_file_for_read("freeCols.txt");
+  std::string file_name = scratch_dir + "freeCols.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {

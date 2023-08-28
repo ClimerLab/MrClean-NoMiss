@@ -10,11 +10,12 @@
 //------------------------------------------------------------------------------
 // Constructor.
 //------------------------------------------------------------------------------
-CalcPairsController::CalcPairsController(const DataContainer &_data) :  data(&_data),
-                                                    num_rows(data->get_num_data_rows()),
-                                                    num_cols(data->get_num_data_cols()),
-                                                    world_size(Parallel::get_world_size())
-{
+CalcPairsController::CalcPairsController(const DataContainer &_data,
+                                         const std::string &_scratch_dir) : data(&_data),
+                                                                            num_rows(data->get_num_data_rows()),
+                                                                            num_cols(data->get_num_data_cols()),
+                                                                            scratch_dir(_scratch_dir),
+                                                                            world_size(Parallel::get_world_size()) {
   for (std::size_t i = world_size - 1; i > 0; --i) {
     available_workers.push(i);
   }
@@ -76,13 +77,15 @@ FILE* CalcPairsController::open_file(const std::string &file_name) const {
 // Records the 'free rows' and 'rows forced to 1' in seperate files.
 //------------------------------------------------------------------------------
 void CalcPairsController::record_free_rows() const {
-  FILE* out = open_file("freeRows.txt");
+  std::string file_name = scratch_dir + "freeRows.txt";
+  FILE* out = open_file(file_name);
   for (auto r : free_rows) {
     fprintf(out, "%lu\n", r);
   }
   fclose(out);
   
-  out = open_file("forcedOneRows.txt");
+  file_name = scratch_dir + "forcedOneRows.txt";
+  out = open_file(file_name);
   for (auto r : forced_one_rows) {
     fprintf(out, "%lu\n", r);
   }
@@ -93,13 +96,15 @@ void CalcPairsController::record_free_rows() const {
 // Records the 'free cols' and 'cols forced to 1' in seperate files.
 //------------------------------------------------------------------------------
 void CalcPairsController::record_free_cols() const {
-  FILE* out = open_file("freeCols.txt");
+  std::string file_name = scratch_dir + "freeCols.txt";
+  FILE* out = open_file(file_name);
   for (auto c : free_cols) {
     fprintf(out, "%lu\n", c);
   }
   fclose(out);
 
-  out = open_file("forcedOneCols.txt");
+  file_name = scratch_dir + "forcedOneCols.txt";
+  out = open_file(file_name);
   for (auto c : forced_one_cols) {
     fprintf(out, "%lu\n", c);
   }
@@ -161,7 +166,7 @@ void CalcPairsController::receive_completion() {
   MPI_Recv(&flag, 1, MPI_INT, status.MPI_SOURCE, Parallel::SPARSE_TAG, MPI_COMM_WORLD, &status);
 
   if (flag != 1) {
-    fprintf(stderr, "Received inknow flag\n");
+    fprintf(stderr, "Received inknown flag\n");
   }
 
   available_workers.push(status.MPI_SOURCE);
@@ -205,7 +210,7 @@ void CalcPairsController::work() {
   send_start();
 
   // Create local core and calculare alloted pairs
-  CalcPairsCore core(*data, free_rows, free_cols);
+  CalcPairsCore core(*data, scratch_dir, free_rows, free_cols);
   core.work();
 
   // Wait for all workes to finish
@@ -237,11 +242,11 @@ bool CalcPairsController::workers_still_working() {
 
 
 void CalcPairsController::combine_row_pair_files() {
-  std::ofstream output("rowPairs.csv", std::ios_base::binary);
-
+  std::string file_name = scratch_dir + "rowPairs.csv";
+  std::ofstream output(file_name, std::ios_base::binary);
 
   for (std::size_t p = 0; p < world_size; ++p) {
-    std::string input_file = "rowPairs_part" + std::to_string(p) + ".csv";
+    std::string input_file = scratch_dir + "rowPairs_part" + std::to_string(p) + ".csv";
     std::ifstream input(input_file.c_str(), std::ios_base::binary);
 
     output << input.rdbuf();
@@ -249,11 +254,11 @@ void CalcPairsController::combine_row_pair_files() {
 }
 
 void CalcPairsController::combine_col_pair_files() {
-  std::ofstream output("colPairs.csv", std::ios_base::binary);
-
+  std::string file_name = scratch_dir + "colPairs.csv";
+  std::ofstream output(file_name, std::ios_base::binary);
 
   for (std::size_t p = 0; p < world_size; ++p) {
-    std::string input_file = "colPairs_part" + std::to_string(p) + ".csv";
+    std::string input_file = scratch_dir + "colPairs_part" + std::to_string(p) + ".csv";
     std::ifstream input(input_file.c_str(), std::ios_base::binary);
 
     output << input.rdbuf();
