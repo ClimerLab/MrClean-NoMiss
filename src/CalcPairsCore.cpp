@@ -15,13 +15,10 @@ CalcPairsCore::CalcPairsCore(const DataContainer &_data,
 CalcPairsCore::~CalcPairsCore() {}
 
 void CalcPairsCore::work() {
-  // fprintf(stderr, "Core %lu starting work\n", world_rank);
   std::string file_name = "rowPairs_part" + std::to_string(world_rank) + ".csv";
   open_file(file_name);
 
-  // fprintf(stderr, "Num free_rows: %lu\n", free_rows.size());
   for (std::size_t idx = world_rank; idx < free_rows.size()-1; idx+=world_size) {
-    // fprintf(stderr, "rank %lu is starting row %lu\n", world_rank, idx);
     const std::size_t i1 = free_rows[idx];
     const std::size_t num_pairs = free_rows.size()-1-idx;
     std::vector<std::size_t> count(num_pairs, num_cols);
@@ -49,12 +46,11 @@ void CalcPairsCore::work() {
 
   close_file();
 
-// fprintf(stderr, "Num free_cols: %lu\n", free_cols.size());
+
   std::string col_file_name =  "colPairs_part" + std::to_string(world_rank) + ".csv";
   open_file(col_file_name);
 
   for (std::size_t idx = world_rank; idx < free_cols.size()-1; idx+=world_size) {
-    // fprintf(stderr, "rank %lu is starting col %lu\n", world_rank, idx);
     const std::size_t j1 = free_cols[idx];
     const std::size_t num_pairs = free_cols.size()-1-idx;
     std::vector<std::size_t> count(num_pairs, num_rows);
@@ -80,9 +76,6 @@ void CalcPairsCore::work() {
     record_pair_count(count, output);
   }
   close_file();
-
-
-  // fprintf(stderr, "Rank %lu inished work\n", world_rank);
 }
 
 

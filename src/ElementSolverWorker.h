@@ -4,6 +4,7 @@
 #include <vector>
 #include "DataContainer.h"
 #include "Pairs.h"
+#include "ElementIpSolver.h"
 
 class ElementSolverWorker
 {
@@ -30,8 +31,8 @@ private:
   std::vector<std::size_t> free_rows;
   std::vector<std::size_t> free_cols;
 
-  Pairs row_pairs;
-  Pairs col_pairs;
+  std::vector<std::pair<std::size_t, std::vector<std::size_t>>> row_pairs;
+  std::vector<std::pair<std::size_t, std::vector<std::size_t>>> col_pairs;
 
   FILE* open_file_for_read(const std::string &file_name) const;
   void read_forced_one_rows();
@@ -41,6 +42,8 @@ private:
 
   void receive_problem();
   void send_back_solution();
+
+  void clear_pairs();
 
 public:
   ElementSolverWorker(const DataContainer &_data,

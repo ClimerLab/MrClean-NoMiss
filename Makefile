@@ -103,8 +103,8 @@ $(OBJDIR)/ElementWrapper.o:	$(addprefix $(SRCDIR)/, ElementWrapper.cpp ) \
 
 $(OBJDIR)/ElementSolverController.o:	$(addprefix $(SRCDIR)/, ElementSolverController.cpp ElementSolverController.h) \
 																			$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
-																			$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o) \
-																			$(addprefix $(SRCDIR)/, Utils.h  CleanSolution.o)
+																			$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o CleanSolution.o) \
+																			$(addprefix $(SRCDIR)/, Utils.h )
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/ElementSolverWorker.o:	$(addprefix $(SRCDIR)/, ElementSolverWorker.cpp ElementSolverWorker.h) \

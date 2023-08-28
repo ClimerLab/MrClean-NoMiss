@@ -37,7 +37,7 @@ ElementSolverController::ElementSolverController(const DataContainer &_data,
 
   best_rows_to_keep = sol.get_rows_to_keep();
   best_cols_to_keep = sol.get_cols_to_keep();
-  best_num_elements = sol.get_num_cols_kept() * sol.get_num_cols_kept();
+  best_num_elements = sol.get_num_rows_kept() * sol.get_num_cols_kept();
 
   noMissSummary::write_solution_to_file("Element.sol", best_rows_to_keep, best_cols_to_keep);
 }
@@ -302,9 +302,37 @@ void ElementSolverController::send_problem(const std::size_t row_sum,
   // Send the minimum number of columns for the problem
   MPI_Send(&min_cols, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
 
-  MPI_Send(&valid_row[0], valid_row.size(), MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+  // Loop through each free row & send row-pairs if it is valid
+  for (std::size_t i = 0; i < free_rows.size()-1; ++i) {
+    MPI_Send(&valid_row[i], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
 
-  MPI_Send(&valid_col[0], valid_col.size(), MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+    if (valid_row[i] == 1) {
+      auto rp = row_pairs.getPairsLtThresh(i, min_cols, valid_row);
+      std::size_t num_pairs = rp.size();
+
+      MPI_Send(&num_pairs, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+      if (num_pairs > 0) {
+        MPI_Send(&rp[0], rp.size(), CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+      }
+    }
+  }
+  MPI_Send(&valid_row[free_rows.size()-1], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+
+  // Loop through each free column & send col-pairs if it is valid
+  for (std::size_t j = 0; j < free_cols.size()-1; ++j) {
+    MPI_Send(&valid_col[j], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+
+    if (valid_col[j] == 1) {
+      auto cp = col_pairs.getPairsLtThresh(j, row_sum, valid_col);
+      std::size_t num_pairs = cp.size();
+
+      MPI_Send(&num_pairs, 1, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+      if (num_pairs > 0) {
+        MPI_Send(&cp[0], num_pairs, CUSTOM_SIZE_T, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
+      }
+    }
+  }
+  MPI_Send(&valid_col[free_cols.size()-1], 1, MPI_INT, worker, Parallel::SPARSE_TAG, MPI_COMM_WORLD);
 
   // Make the worker unavailable
   available_workers.pop();
