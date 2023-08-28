@@ -40,7 +40,7 @@ private:
   bool is_large_matrix() const;
 
 public:
-  ElementIpSolver(const DataContainer &_data,  
+  ElementIpSolver(const DataContainer &_data,
                   const std::size_t _row_sum,
                   const std::size_t _min_cols,
                   const std::vector<size_t> &_forced_one_rows,
