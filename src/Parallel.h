@@ -2,7 +2,8 @@
 #define PARALLEL_H
 
 #include <limits.h>
-#include <mpi.h>
+//#include <mpi.h>
+#include </cluster/spack-2022/opt/spack/linux-centos7-x86_64/gcc-9.3.0/openmpi-4.1.1-udg7sdl3kjslokkcsrmuzz5kn6krohpa/include/mpi.h>
 #include <stdint.h>
 
 // https://stackoverflow.com/a/40808411
