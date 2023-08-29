@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   cleaned_file += "_cleaned.tsv";
   data.write(cleaned_file, rows_to_keep, cols_to_keep);
 
-  std::size_t num_rows_kept = 0, num_cols_kept;
+  std::size_t num_rows_kept = 0, num_cols_kept = 0;
   for (auto r : best_rows_to_keep) {
     num_rows_kept += r;
   }
