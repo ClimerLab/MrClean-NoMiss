@@ -11,6 +11,7 @@ private:
   const DataContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
+  const std::string scratch_dir;
   const std::size_t world_rank;  
   const std::size_t world_size;
 
@@ -25,6 +26,7 @@ private:
 
 public:
   CalcPairsCore(const DataContainer &_data,
+                const std::string &_scratch_dir,
                 const std::vector<std::size_t> &_free_rows,
                 const std::vector<std::size_t> &_free_cols);
   ~CalcPairsCore();

@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
   try {
     if (world_rank == 0) {
-      if (!((argc == 4) || (argc == 6))) {
-        fprintf(stderr, "Usage: %s <data_file> <na_symbol> <incumbent_file> (opt)<num_header_rows> (opt)<num_header_cols>\n", argv[0]);
+      if (!(argc == 6) && !(argc == 7)) {
+        fprintf(stderr, "Usage: %s <data_file> <na_symbol> <scratch_dir> <num_header_rows> <num_header_cols> (opt)<incument_file>", argv[0]);
         exit(1);
       } else if (world_size < 2) {
         fprintf(stderr, "world_size must be greater than 1.\n");
@@ -30,14 +30,15 @@ int main(int argc, char *argv[]) {
     
     std::string data_file(argv[1]);
     std::string na_symbol(argv[2]);
-    std::string incumbent_file(argv[3]);
-    std::size_t num_header_rows = 1;
-    std::size_t num_header_cols = 1;
+    std::string scratch_dir(argv[3]);
+    std::size_t num_header_rows = std::stoul(argv[4]);
+    std::size_t num_header_cols = std::stoul(argv[5]);
+    std::string incumbent_file = "";
 
-    if (argc == 6) {
-      num_header_rows = std::stoul(argv[4]);
-      num_header_cols = std::stoul(argv[5]);
+    if (argc == 7) {
+      incumbent_file = argv[6];
     }
+
     DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
     ConfigParser parser("config.cfg");
     const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
@@ -53,7 +54,7 @@ int main(int argc, char *argv[]) {
         std::vector<int> rows_to_keep(data.get_num_data_rows(), 0), cols_to_keep(data.get_num_data_cols(), 0);
   
         timer.restart();
-        ElementSolverController controller(data, incumbent_file);
+        ElementSolverController controller(data, scratch_dir, incumbent_file);
         controller.work();
 
         while (controller.workers_still_working()) {
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
       }
 
       default: {
-        ElementSolverWorker worker(data, LARGE_MATRIX);
+        ElementSolverWorker worker(data, scratch_dir, LARGE_MATRIX);
         while (!worker.end()) {
           worker.work();
         }

@@ -14,6 +14,7 @@ private:
   const DataContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
+  const std::string scratch_dir;
 
   const std::size_t world_size;
 
@@ -42,7 +43,8 @@ private:
   void send_start();
 
 public:
-  CalcPairsController(const DataContainer &_data);
+  CalcPairsController(const DataContainer &_data,
+                      const std::string &_scratch_dir);
   ~CalcPairsController();
 
   void work();

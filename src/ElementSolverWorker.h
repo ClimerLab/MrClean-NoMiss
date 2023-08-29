@@ -2,6 +2,7 @@
 #define ELEMENT_SOLVER_WORKER_H
 
 #include <vector>
+#include <string>
 #include "DataContainer.h"
 #include "Pairs.h"
 #include "ElementIpSolver.h"
@@ -12,6 +13,7 @@ private:
   const DataContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
+  const std::string scratch_file;
   const std::size_t world_rank;
   const std::size_t LARGE_MATRIX;
   bool end_;
@@ -47,6 +49,7 @@ private:
 
 public:
   ElementSolverWorker(const DataContainer &_data,
+                      const std::string &_scratch_dir,
                       const std::size_t _LARGE_MATRIX);
   ~ElementSolverWorker();
 

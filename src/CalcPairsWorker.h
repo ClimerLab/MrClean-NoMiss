@@ -10,6 +10,7 @@ private:
   const DataContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
+  const std::string scratch_dir;
   const std::size_t world_rank;
 
   std::vector<std::size_t> free_rows;
@@ -29,7 +30,8 @@ private:
   void receive_start();
 
 public:
-  CalcPairsWorker(const DataContainer &_data);
+  CalcPairsWorker(const DataContainer &_data, 
+                  const std::string &_scratch_dir);
   ~CalcPairsWorker();
 
   void work();

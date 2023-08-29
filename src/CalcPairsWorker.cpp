@@ -2,15 +2,14 @@
 #include "Parallel.h"
 #include "CalcPairsCore.h"
 
-CalcPairsWorker::CalcPairsWorker(const DataContainer &_data) :  data(&_data),
-                                                                num_rows(data->get_num_data_rows()),
-                                                                num_cols(data->get_num_data_cols()),
-                                                                world_rank(Parallel::get_world_rank()) {
-}
+CalcPairsWorker::CalcPairsWorker(const DataContainer &_data,
+                                 const std::string &_scratch_dir) : data(&_data),
+                                                                    num_rows(data->get_num_data_rows()),
+                                                                    num_cols(data->get_num_data_cols()),
+                                                                    scratch_dir(_scratch_dir),
+                                                                    world_rank(Parallel::get_world_rank()) {}
 
 CalcPairsWorker::~CalcPairsWorker() {}
-
-
 
 void CalcPairsWorker::work() {
   receive_start();
@@ -18,7 +17,7 @@ void CalcPairsWorker::work() {
   read_free_rows();
   read_free_cols();
 
-  CalcPairsCore core(*data,free_rows, free_cols);
+  CalcPairsCore core(*data, scratch_dir, free_rows, free_cols);
   core.work();
 
   send_completion();
@@ -38,7 +37,8 @@ FILE* CalcPairsWorker::open_file_for_read(const std::string &file_name) const {
 }
 
 void CalcPairsWorker::read_free_rows() {
-  FILE* input = open_file_for_read("freeRows.txt");
+  std::string file_name = scratch_dir + "freeRows.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {
@@ -55,7 +55,8 @@ void CalcPairsWorker::read_free_rows() {
 }
 
 void CalcPairsWorker::read_free_cols() {
-  FILE* input = open_file_for_read("freeCols.txt");
+  std::string file_name = scratch_dir + "freeCols.txt";
+  FILE* input = open_file_for_read(file_name);
   char tmp_str[50];
 
   while (true) {

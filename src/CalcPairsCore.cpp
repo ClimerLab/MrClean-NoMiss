@@ -2,10 +2,12 @@
 #include "Parallel.h"
 
 CalcPairsCore::CalcPairsCore(const DataContainer &_data,
+                             const std::string &_scratch_dir,
                              const std::vector<std::size_t> &_free_rows,
                              const std::vector<std::size_t> &_free_cols) :  data(&_data),
                                                                             num_rows(data->get_num_data_rows()),
                                                                             num_cols(data->get_num_data_cols()),
+                                                                            scratch_dir(_scratch_dir),
                                                                             world_rank(Parallel::get_world_rank()),
                                                                             world_size(Parallel::get_world_size()),
                                                                             free_rows(_free_rows),
@@ -15,7 +17,7 @@ CalcPairsCore::CalcPairsCore(const DataContainer &_data,
 CalcPairsCore::~CalcPairsCore() {}
 
 void CalcPairsCore::work() {
-  std::string file_name = "rowPairs_part" + std::to_string(world_rank) + ".csv";
+  std::string file_name = scratch_dir + "rowPairs_part" + std::to_string(world_rank) + ".csv";
   open_file(file_name);
 
   for (std::size_t idx = world_rank; idx < free_rows.size()-1; idx+=world_size) {
@@ -47,7 +49,7 @@ void CalcPairsCore::work() {
   close_file();
 
 
-  std::string col_file_name =  "colPairs_part" + std::to_string(world_rank) + ".csv";
+  std::string col_file_name = scratch_dir + "colPairs_part" + std::to_string(world_rank) + ".csv";
   open_file(col_file_name);
 
   for (std::size_t idx = world_rank; idx < free_cols.size()-1; idx+=world_size) {
