@@ -1,5 +1,6 @@
 #include "ElementIpSolver.h"
 #include <assert.h>
+#include <cmath>
 
 ElementIpSolver::ElementIpSolver(const DataContainer &_data,
                                  const std::size_t _row_sum,
