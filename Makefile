@@ -15,7 +15,7 @@ CONCERTDIR    = /opt/ibm/ILOG/CPLEX_Studio221/concert
 #---------------------------------------------------------------------------------------------------
 
 MPICXX	= /usr/local/bin/mpicxx
-CXX			= g++
+CXX	= g++
 
 #---------------------------------------------------------------------------------------------------
 # Directories
@@ -34,15 +34,15 @@ EXE = rowColLp addRowGreedy calcPairs elementIp writeCleanedMatrix CheckMatrixOr
 # Object files
 #---------------------------------------------------------------------------------------------------
 
-COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
-ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
-GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
+COMMON_OBJ = 	DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
+ROWCOL_OBJ = 	$(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
+GREEDY_OBJ = 	$(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairsController.o \
-								CalcPairsWorker.o Parallel.o CalcPairsCore.o
-ELEMENT_OBJ = $(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o \
-							ElementSolverController.o ElementSolverWorker.o Parallel.o CleanSolution.o
-CLEAN_OBJ = WriteCleanedMatrix.o DataContainer.o NoMissSummary.o
-ORIENT_OBJ = CheckMatrixOrientation.o DataContainer.o
+		CalcPairsWorker.o Parallel.o CalcPairsCore.o
+ELEMENT_OBJ = 	$(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o AddRowGreedy.o \
+		ElementSolverController.o ElementSolverWorker.o Parallel.o CleanSolution.o
+CLEAN_OBJ = 	WriteCleanedMatrix.o DataContainer.o NoMissSummary.o
+ORIENT_OBJ = 	CheckMatrixOrientation.o DataContainer.o
 
 #---------------------------------------------------------------------------------------------------
 # Compiler options
@@ -54,20 +54,20 @@ CXXFLAGS = -O3 -Wall -fPIC -fexceptions -DIL_STD -std=c++11 -fno-strict-aliasing
 # Link options and libraries
 #---------------------------------------------------------------------------------------------------
 
-CPLEXLIBDIR    = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-CONCERTLIBDIR  = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-OPENMPI		   	 = /usr/local/lib/openmpi
+CPLEXLIBDIR 	= $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
+CONCERTLIBDIR 	= $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
+OPENMPI  	= /usr/local/lib/openmpi
 
-CXXLNDIRS      = -L$(CPLEXLIBDIR) -L$(CONCERTLIBDIR) -L$(OPENMPI)
-CXXLNFLAGS     = -lconcert -lilocplex -lcplex
-CXXPFLAGS			 = -lm -lpthread -ldl
+CXXLNDIRS 	= -L$(CPLEXLIBDIR) -L$(CONCERTLIBDIR) -L$(OPENMPI)
+CXXLNFLAGS	= -lconcert -lilocplex -lcplex
+CXXPFLAGS	= -lm -lpthread -ldl
 
 #---------------------------------------------------------------------------------------------------
 # Includes
 #---------------------------------------------------------------------------------------------------
 
-CONCERTINCDIR = $(CONCERTDIR)/include
-CPLEXINCDIR   = $(CPLEXDIR)/include
+CONCERTINCDIR	= $(CONCERTDIR)/include
+CPLEXINCDIR	= $(CPLEXDIR)/include
 
 INCLUDES = -I$(CPLEXINCDIR) -I$(CONCERTINCDIR)
 
@@ -79,89 +79,89 @@ debug: CXXFLAGS += -g
 debug: $(EXE)
 
 CheckMatrixOrientation: $(addprefix $(OBJDIR)/, CheckMatrixOrientation.o)
-	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ORIENT_OBJ)) $(CXXLNFLAGS)
+			$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ORIENT_OBJ)) $(CXXLNFLAGS)
 
 $(OBJDIR)/CheckMatrixOrientation.o:	$(addprefix $(SRCDIR)/, CheckMatrixOrientation.cpp ) \
-																		$(addprefix $(OBJDIR)/, DataContainer.o)
+					$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 writeCleanedMatrix: $(addprefix $(OBJDIR)/, WriteCleanedMatrix.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(CLEAN_OBJ)) $(CXXLNFLAGS)
 
 $(OBJDIR)/WriteCleanedMatrix.o:	$(addprefix $(SRCDIR)/, WriteCleanedMatrix.cpp ) \
-																$(addprefix $(OBJDIR)/, DataContainer.o NoMissSummary.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o NoMissSummary.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 elementIp: $(addprefix $(OBJDIR)/, ElementWrapper.o)
 	$(MPICXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ELEMENT_OBJ)) $(CXXLNFLAGS) $(CXXPFLAGS)
 
 $(OBJDIR)/ElementWrapper.o:	$(addprefix $(SRCDIR)/, ElementWrapper.cpp ) \
-														$(addprefix $(OBJDIR)/, ElementSolverController.o ElementSolverWorker.o) \
-														$(addprefix $(OBJDIR)/, Parallel.o CleanSolution.o) \
-														$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
+				$(addprefix $(OBJDIR)/, ElementSolverController.o ElementSolverWorker.o) \
+				$(addprefix $(OBJDIR)/, Parallel.o CleanSolution.o) \
+				$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/ElementSolverController.o:	$(addprefix $(SRCDIR)/, ElementSolverController.cpp ElementSolverController.h) \
-																			$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
-																			$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o CleanSolution.o) \
-																			$(addprefix $(SRCDIR)/, Utils.h )
+					$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
+					$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o CleanSolution.o) \
+					$(addprefix $(SRCDIR)/, Utils.h )
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/ElementSolverWorker.o:	$(addprefix $(SRCDIR)/, ElementSolverWorker.cpp ElementSolverWorker.h) \
-																	$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
-																	$(addprefix $(OBJDIR)/, ElementIpSolver.o Parallel.o) \
-																	$(addprefix $(SRCDIR)/, Utils.h)
+					$(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
+					$(addprefix $(OBJDIR)/, ElementIpSolver.o Parallel.o) \
+					$(addprefix $(SRCDIR)/, Utils.h)
 	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/Pairs.o: $(addprefix $(SRCDIR)/, Pairs.cpp Pairs.h)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/ElementIpSolver.o:	$(addprefix $(SRCDIR)/, ElementIpSolver.cpp ElementIpSolver.h) \
-															$(addprefix $(OBJDIR)/, DataContainer.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 calcPairs: $(addprefix $(OBJDIR)/, CalcPairsWrapper.o)
 	$(MPICXX)  $(CXXPFLAGS) -o $@  $(addprefix $(OBJDIR)/, $(CALCPAIRS_OBJ))
 
 $(OBJDIR)/CalcPairsWrapper.o:	$(addprefix $(SRCDIR)/, CalcPairsWrapper.cpp ) \
-															$(addprefix $(OBJDIR)/, DataContainer.o Timer.o Parallel.o) \
-															$(addprefix $(OBJDIR)/, CalcPairsController.o CalcPairsWorker.o CalcPairsCore.o) 
+				$(addprefix $(OBJDIR)/, DataContainer.o Timer.o Parallel.o) \
+				$(addprefix $(OBJDIR)/, CalcPairsController.o CalcPairsWorker.o CalcPairsCore.o) 
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/CalcPairsController.o:	$(addprefix $(SRCDIR)/, CalcPairsController.cpp CalcPairsController.h) \
-																	$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
+					$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/CalcPairsWorker.o:	$(addprefix $(SRCDIR)/, CalcPairsWorker.cpp CalcPairsWorker.h) \
-															$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o CalcPairsCore.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/CalcPairsCore.o:	$(addprefix $(SRCDIR)/, CalcPairsCore.cpp CalcPairsCore.h) \
-														$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(GREEDY_OBJ)) $(CXXLNFLAGS)
 
 $(OBJDIR)/AddRowGreedyWrapper.o:	$(addprefix $(SRCDIR)/, AddRowGreedyWrapper.cpp ) \
-																	$(addprefix $(OBJDIR)/, AddRowGreedy.o) \
-																	$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
+					$(addprefix $(OBJDIR)/, AddRowGreedy.o) \
+					$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 rowColLp: $(addprefix $(OBJDIR)/, RowColLpWrapper.o)
 	$(CXX) $(CXXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ROWCOL_OBJ)) $(CXXLNFLAGS)
 
 $(OBJDIR)/RowColLpWrapper.o:	$(addprefix $(SRCDIR)/, RowColLpWrapper.cpp ) \
-															$(addprefix $(OBJDIR)/, RowColLpSolver.o) \
-															$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
+				$(addprefix $(OBJDIR)/, RowColLpSolver.o) \
+				$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/AddRowGreedy.o:	$(addprefix $(SRCDIR)/, AddRowGreedy.cpp AddRowGreedy.h) \
-													$(addprefix $(OBJDIR)/, DataContainer.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/RowColLpSolver.o:	$(addprefix $(SRCDIR)/, RowColLpSolver.cpp RowColLpSolver.h) \
-														$(addprefix $(OBJDIR)/, DataContainer.o)
+				$(addprefix $(OBJDIR)/, DataContainer.o)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/NoMissSummary.o: $(addprefix $(SRCDIR)/, NoMissSummary.cpp NoMissSummary.h)
