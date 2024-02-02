@@ -36,7 +36,7 @@ SRCDIR = src
 # Executables
 #---------------------------------------------------------------------------------------------------
 
-EXE = rowColLp addRowGreedy calcPairs elementIp writeCleanedMatrix CheckMatrixOrientation
+EXE = rowColLp calcPairs elementIp writeCleanedMatrix CheckMatrixOrientation
 
 #---------------------------------------------------------------------------------------------------
 # Object files
@@ -44,7 +44,6 @@ EXE = rowColLp addRowGreedy calcPairs elementIp writeCleanedMatrix CheckMatrixOr
 
 COMMON_OBJ = DataContainer.o Timer.o ConfigParser.o NoMissSummary.o
 ROWCOL_OBJ = $(COMMON_OBJ) RowColLpSolver.o RowColLpWrapper.o
-GREEDY_OBJ = $(COMMON_OBJ) AddRowGreedy.o AddRowGreedyWrapper.o
 CALCPAIRS_OBJ = DataContainer.o Timer.o CalcPairsWrapper.o CalcPairsController.o \
 								CalcPairsWorker.o Parallel.o CalcPairsCore.o
 ELEMENT_OBJ = $(COMMON_OBJ) ElementIpSolver.o ElementWrapper.o Pairs.o CleanSolution.o \
@@ -117,7 +116,7 @@ $(OBJDIR)/ElementWrapper.o:	$(addprefix $(SRCDIR)/, ElementWrapper.cpp ) \
 
 $(OBJDIR)/ElementSolverController.o:	$(addprefix $(SRCDIR)/, ElementSolverController.cpp ElementSolverController.h) \
           $(addprefix $(OBJDIR)/, DataContainer.o Pairs.o) \
-					$(addprefix $(OBJDIR)/, AddRowGreedy.o Parallel.o CleanSolution.o) \
+					$(addprefix $(OBJDIR)/, Parallel.o CleanSolution.o) \
 					$(addprefix $(SRCDIR)/, Utils.h )
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
@@ -154,18 +153,6 @@ $(OBJDIR)/CalcPairsCore.o:	$(addprefix $(SRCDIR)/, CalcPairsCore.cpp CalcPairsCo
 				$(addprefix $(OBJDIR)/, DataContainer.o Parallel.o)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-addRowGreedy: $(addprefix $(OBJDIR)/, AddRowGreedyWrapper.o)
-	$(CXX) -o $@ $(addprefix $(OBJDIR)/, $(GREEDY_OBJ))
-
-$(OBJDIR)/AddRowGreedyWrapper.o:	$(addprefix $(SRCDIR)/, AddRowGreedyWrapper.cpp ) \
-					$(addprefix $(OBJDIR)/, AddRowGreedy.o) \
-					$(addprefix $(OBJDIR)/, $(COMMON_OBJ))
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJDIR)/AddRowGreedy.o:	$(addprefix $(SRCDIR)/, AddRowGreedy.cpp AddRowGreedy.h) \
-				$(addprefix $(OBJDIR)/, DataContainer.o)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
- 
 rowColLp: $(addprefix $(OBJDIR)/, RowColLpWrapper.o)
 	$(CXX) $(CPLEXLNDIRS) -o $@  $(addprefix $(OBJDIR)/, $(ROWCOL_OBJ)) $(CPLEXLNFLAGS)
 
