@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 class CalcPairsCore
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::string scratch_dir;
@@ -25,7 +25,7 @@ private:
   void record_pair_count(const std::vector<std::size_t> &count, FILE *stream) const;
 
 public:
-  CalcPairsCore(const DataContainer &_data,
+  CalcPairsCore(const BinContainer &_data,
                 const std::string &_scratch_dir,
                 const std::vector<std::size_t> &_free_rows,
                 const std::vector<std::size_t> &_free_cols);

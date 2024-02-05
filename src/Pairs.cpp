@@ -230,7 +230,7 @@ void Pairs::recalculateValues(const bool rowCol,
                               const std::vector<std::size_t> &freeDim2,
                               const std::vector<bool> &validDim2,
                               const std::size_t numDim2ForcedToOne,
-                              const DataContainer &data) {
+                              const BinContainer &data) {
   assert(size == freeDim1.size() - 1);
   assert(freeDim2.size() == validDim2.size());
 

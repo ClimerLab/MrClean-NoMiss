@@ -5,12 +5,12 @@
 #include <ilcplex/ilocplex.h>
 #include <ilconcert/ilomodel.h>
 
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 class RowColLpSolver
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const double TOL;
@@ -32,7 +32,7 @@ private:
   void round_extreme_values();
 
 public:
-  RowColLpSolver(const DataContainer &_data,
+  RowColLpSolver(const BinContainer &_data,
                  const double _TOL = 0.00001);
   ~RowColLpSolver();
 

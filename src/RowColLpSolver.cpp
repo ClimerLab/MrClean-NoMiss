@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 // Constructor.
 //------------------------------------------------------------------------------
-RowColLpSolver::RowColLpSolver(const DataContainer &_data,
+RowColLpSolver::RowColLpSolver(const BinContainer &_data,
                                const double _TOL) : data(&_data),
                                                     num_rows(data->get_num_data_rows()),
                                                     num_cols(data->get_num_data_cols()),
@@ -31,7 +31,7 @@ RowColLpSolver::RowColLpSolver(const DataContainer &_data,
 RowColLpSolver::~RowColLpSolver() {}
 
 //------------------------------------------------------------------------------
-// Builds the CPLEX model based on the DataContainer object.
+// Builds the CPLEX model based on the BinContainer object.
 //------------------------------------------------------------------------------
 void RowColLpSolver::build_model() {
   for (std::size_t i = 0; i < num_rows; ++i) {

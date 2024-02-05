@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "Utils.h"
 
-ElementSolver::ElementSolver(const DataContainer &_data,
+ElementSolver::ElementSolver(const BinContainer &_data,
                              const double _TOL) : data(&_data),
                                                   num_rows(data->get_num_data_rows()),
                                                   num_cols(data->get_num_data_cols()),

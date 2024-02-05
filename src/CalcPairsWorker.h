@@ -2,12 +2,12 @@
 #define CALC_PAIRS_WORKER_H
 
 #include <vector>
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 class CalcPairsWorker
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::string scratch_dir;
@@ -30,7 +30,7 @@ private:
   void receive_start();
 
 public:
-  CalcPairsWorker(const DataContainer &_data, 
+  CalcPairsWorker(const BinContainer &_data, 
                   const std::string &_scratch_dir);
   ~CalcPairsWorker();
 

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <cmath>
 
-ElementIpSolver::ElementIpSolver(const DataContainer &_data,
+ElementIpSolver::ElementIpSolver(const BinContainer &_data,
                                  const std::size_t _row_sum,
                                  const std::size_t _min_cols,
                                  const std::vector<size_t> &_forced_one_rows,

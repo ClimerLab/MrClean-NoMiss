@@ -1,5 +1,5 @@
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 int main(int argc, char *argv[]) {
   // Check user input
@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     num_header_cols = std::stoul(argv[4]);
   }
 
-  DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+  BinContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
   fprintf(stderr, "File has %lu data rows and %lu data columns\n", data.get_num_data_rows(), data.get_num_data_cols());
 
   FILE *results;
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
      out_file = data_file.substr(0, lastindex);
     fprintf(stderr, "Transposing matrix\n");
     out_file += "_T.tsv";
-    data.write_transpose(out_file);
+    data.write_orig_transpose(out_file);
 
     fprintf(results, "DATA_FILE=%s\n", out_file.c_str());
     fprintf(results, "NUM_HEADER_ROWS=%lu\n", data.get_num_header_cols());

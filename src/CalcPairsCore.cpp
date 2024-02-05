@@ -1,7 +1,7 @@
 #include "CalcPairsCore.h"
 #include "Parallel.h"
 
-CalcPairsCore::CalcPairsCore(const DataContainer &_data,
+CalcPairsCore::CalcPairsCore(const BinContainer &_data,
                              const std::string &_scratch_dir,
                              const std::vector<std::size_t> &_free_rows,
                              const std::vector<std::size_t> &_free_cols) :  data(&_data),

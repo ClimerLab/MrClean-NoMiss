@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 class Pairs
 {
@@ -27,7 +27,7 @@ public:
                          const std::vector<std::size_t> &freeDim2,
                          const std::vector<bool> &validDim2,
                          const std::size_t numDim2ForcedToOne,
-                         const DataContainer &data);
+                         const BinContainer &data);
 
   std::vector<std::size_t> getPairsGteThresh(const std::size_t idx, const unsigned int threshold) const;
   std::vector<std::size_t> getPairsLtThresh(const std::size_t idx, const unsigned int threshold) const;

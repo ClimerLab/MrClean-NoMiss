@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 // Constructor.
 //------------------------------------------------------------------------------
-ElementSolverController::ElementSolverController(const DataContainer &_data,
+ElementSolverController::ElementSolverController(const BinContainer &_data,
                                                  const std::string &_scratch_dir,
                                                  const std::string &incumbent_file) : data(&_data),
                                                                                       num_rows(data->get_num_data_rows()),

@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "Timer.h"
 #include "ConfigParser.h"
 #include "NoMissSummary.h"
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
       incumbent_file = argv[6];
     }
 
-    DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+    BinContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
     ConfigParser parser("config.cfg");
     const bool PRINT_SUMMARY = parser.getBool("PRINT_SUMMARY");
     const bool WRITE_STATS = parser.getBool("WRITE_STATS");

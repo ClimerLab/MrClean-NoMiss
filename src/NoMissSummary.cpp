@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 // Print summary of algorithm to screen
 //------------------------------------------------------------------------------
-void noMissSummary::summarize_results(const DataContainer &data,
+void noMissSummary::summarize_results(const BinContainer &data,
                                       const std::string &na_symbol,
                                       const std::string &alg_name,
                                       const double elapsed_cpu_time,
@@ -23,7 +23,7 @@ void noMissSummary::summarize_results(const DataContainer &data,
 //------------------------------------------------------------------------------
 // Print summary of algorithm to screen
 //------------------------------------------------------------------------------
-void noMissSummary::summarize_results(const DataContainer &data,
+void noMissSummary::summarize_results(const BinContainer &data,
                                       const std::string &na_symbol,
                                       const std::string &alg_name,
                                       const double elapsed_cpu_time,

@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "RowColLpSolver.h"
 #include "Timer.h"
 #include "ConfigParser.h"
@@ -31,17 +31,19 @@ int main(int argc, char *argv[]) {
   Timer timer;
 
   // Read in data
-  DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+  BinContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
 
   // Construct & solve RowCol LP
   std::size_t num_rows_to_keep = 0, num_cols_to_keep = 0, num_val_elements = 0;
   double run_time = 0.0;
   std::vector<bool> rows_to_keep(data.get_num_data_rows(), false), cols_to_keep(data.get_num_data_cols(), false);
 
+  fprintf(stderr, "Calling Solver\n");
   RowColLpSolver rc_solver(data);
   timer.start();
   rc_solver.solve();
   timer.stop();
+  fprintf(stderr, "Solver finished\n");
 
   rows_to_keep = rc_solver.get_rows_to_keep();
   cols_to_keep = rc_solver.get_cols_to_keep();

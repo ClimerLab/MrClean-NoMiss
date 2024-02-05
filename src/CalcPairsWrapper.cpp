@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string>
 
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "Timer.h"
 #include "CalcPairsController.h"
 #include "CalcPairsWorker.h"
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     std::size_t num_header_rows = std::stoul(argv[4]);
     std::size_t num_header_cols = std::stoul(argv[5]);
     
-    DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+    BinContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
 
     switch (world_rank) {
       case 0: {

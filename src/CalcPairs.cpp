@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 // Constructor.
 //------------------------------------------------------------------------------
-CalcPairs::CalcPairs(const DataContainer &_data) :  data(&_data),
+CalcPairs::CalcPairs(const BinContainer &_data) :  data(&_data),
                                                     num_rows(data->get_num_data_rows()),
                                                     num_cols(data->get_num_data_cols())
 {

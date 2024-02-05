@@ -6,12 +6,13 @@
 #include <ilcplex/ilocplex.h>
 #include <ilconcert/ilomodel.h>
 
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "Pairs.h"
+
 class ElementSolver
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const double TOL;
@@ -35,7 +36,7 @@ private:
   void read_free_cols();
 
 public:
-  ElementSolver(const DataContainer &_data,
+  ElementSolver(const BinContainer &_data,
                 const double _TOL = 0.00001);
   ~ElementSolver();
 

@@ -3,10 +3,10 @@
 
 #include <string>
 #include <vector>
-#include "DataContainer.h"
+#include "BinContainer.h"
 
 namespace noMissSummary {
-  void summarize_results(const DataContainer &data,
+  void summarize_results(const BinContainer &data,
                          const std::string &na_symbol,
                          const std::string &alg_name,
                          const double elapsed_cpu_time,
@@ -15,7 +15,7 @@ namespace noMissSummary {
                          const std::vector<bool> rows_to_keep,
                          const std::vector<bool> cols_to_keep);
   
-  void summarize_results(const DataContainer &data,
+  void summarize_results(const BinContainer &data,
                          const std::string &na_symbol,
                          const std::string &alg_name,
                          const double elapsed_cpu_time,

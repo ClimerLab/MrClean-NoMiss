@@ -1,7 +1,7 @@
 #include "ElementSolverWorker.h"
 #include "Parallel.h"
 
-ElementSolverWorker::ElementSolverWorker(const DataContainer &_data,
+ElementSolverWorker::ElementSolverWorker(const BinContainer &_data,
                                          const std::string &_scratch_dir,
                                          const std::size_t _LARGE_MATRIX) : data(&_data),
                                                                             num_rows(data->get_num_data_rows()),

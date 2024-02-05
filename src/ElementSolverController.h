@@ -6,14 +6,13 @@
 #include <vector>
 #include <string>
 
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "Pairs.h"
-#include "AddRowGreedy.h"
 
 class ElementSolverController
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::string scratch_dir;
@@ -51,7 +50,7 @@ private:
   void receive_completion();  
 
 public:
-  ElementSolverController(const DataContainer &_data,
+  ElementSolverController(const BinContainer &_data,
                           const std::string &_scratch_dir,
                           const std::string &incumbent_file);
   ~ElementSolverController();

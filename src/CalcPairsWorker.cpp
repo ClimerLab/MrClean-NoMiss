@@ -2,7 +2,7 @@
 #include "Parallel.h"
 #include "CalcPairsCore.h"
 
-CalcPairsWorker::CalcPairsWorker(const DataContainer &_data,
+CalcPairsWorker::CalcPairsWorker(const BinContainer &_data,
                                  const std::string &_scratch_dir) : data(&_data),
                                                                     num_rows(data->get_num_data_rows()),
                                                                     num_cols(data->get_num_data_cols()),

@@ -3,14 +3,14 @@
 
 #include <vector>
 #include <string>
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "Pairs.h"
 #include "ElementIpSolver.h"
 
 class ElementSolverWorker
 {
 private:
-  const DataContainer *data;
+  const BinContainer *data;
   const std::size_t num_rows;
   const std::size_t num_cols;
   const std::string scratch_file;
@@ -48,7 +48,7 @@ private:
   void clear_pairs();
 
 public:
-  ElementSolverWorker(const DataContainer &_data,
+  ElementSolverWorker(const BinContainer &_data,
                       const std::string &_scratch_dir,
                       const std::size_t _LARGE_MATRIX);
   ~ElementSolverWorker();

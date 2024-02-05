@@ -1,6 +1,6 @@
 #include <string>
 #include <vector>
-#include "DataContainer.h"
+#include "BinContainer.h"
 #include "NoMissSummary.h"
 
 int main(int argc, char* argv[]) {
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     num_header_cols = std::stoul(argv[4]);
   }
   
-  DataContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
+  BinContainer data(data_file, na_symbol, num_header_rows, num_header_cols);
   std::vector<int> best_rows_to_keep, best_cols_to_keep;
   std::vector<int> rows_to_keep(data.get_num_data_rows(), 0);
   std::vector<int> cols_to_keep(data.get_num_data_cols(), 0);
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
   size_t lastindex = data_file.find_last_of("."); 
   std::string cleaned_file = data_file.substr(0, lastindex); 
   cleaned_file += "_cleaned.tsv";
-  data.write(cleaned_file, rows_to_keep, cols_to_keep);
+  data.write_orig(cleaned_file, rows_to_keep, cols_to_keep);
 
   std::size_t num_rows_kept = 0, num_cols_kept = 0;
   for (auto r : best_rows_to_keep) {
